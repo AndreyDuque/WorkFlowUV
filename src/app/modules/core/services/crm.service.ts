@@ -12,10 +12,10 @@ export class CrmService {
   constructor(private readonly http: HttpClient) {
   }
 
-  getDealForId(method: string, id: string) {
+  getDealForId(id: string) {
     const params = new HttpParams()
       .set('id', `${id}`)
-    return this.http.get(`${this.crm}/${method}.json`, {params})
+    return this.http.get(`${this.crm}/crm.deal.get.json`, {params})
   }
 
   getDealList(start: number, options: any) {

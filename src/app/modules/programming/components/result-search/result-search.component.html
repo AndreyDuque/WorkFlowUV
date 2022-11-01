@@ -5,6 +5,7 @@
       <tr>
         <th scope="col">ID</th>
         <th scope="col">Programaciones</th>
+        <th scope="col">Material</th>
         <th scope="col">Embudo</th>
       </tr>
     </thead>
@@ -22,6 +23,9 @@
             class="col-auto m-2 link-danger"
             >{{ programmation.TITLE }}</a
           >
+        </td>
+        <td class="text-nowrap">
+          {{ programmation.PRODUCT_NAME }}
         </td>
         <td class="text-nowrap">
           {{

@@ -6,7 +6,6 @@ import {CrmService} from "./services/crm.service";
 
 @NgModule({
   declarations: [
-
   ],
   imports: [
     CommonModule,

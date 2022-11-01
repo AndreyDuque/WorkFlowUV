@@ -8,13 +8,15 @@ import { CheckImageLinkDirective } from './modules/core/directives/check-image-l
 import {PageNotFoundComponent} from "./modules/core/shared/components/page-not-found/page-not-found.component";
 import {ToastrModule} from "ngx-toastr";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { FooterComponent } from './modules/core/shared/components/footer/footer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainLayoutComponent,
     CheckImageLinkDirective,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
@@ -24,7 +26,8 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
   ],
   providers: [],
   exports: [
-    MainLayoutComponent
+    MainLayoutComponent,
+    FooterComponent
   ],
   bootstrap: [AppComponent]
 })

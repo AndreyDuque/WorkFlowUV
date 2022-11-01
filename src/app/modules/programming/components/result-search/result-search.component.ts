@@ -38,6 +38,9 @@ export class ResultSearchComponent implements OnInit {
         this.negociaciones = [];
         this.negociaciones = deals.result;
         this.negociaciones = this.negociaciones.filter(negociacion => negociacion.STAGE_ID === "C7:NEW" || negociacion.STAGE_ID === "C3:NEW" || negociacion.STAGE_ID === "C9:NEW")
+        this.negociaciones.forEach(negociacion => {
+          this.getProduct(negociacion)
+        })
         if (this.negociaciones.length == 0) {
           Swal.fire({
             icon: 'error',
@@ -49,6 +52,19 @@ export class ResultSearchComponent implements OnInit {
         }
       },
       'error': err => console.log(err)
+    })
+  }
+
+  getProduct(negociacion: any) {
+    this.crm.getDealProductList(negociacion.ID).subscribe({
+      'next': ((product: any) => {
+        if (product.result[0]) {
+          let productName = product.result[0].PRODUCT_NAME
+          negociacion.PRODUCT_NAME = productName
+        } else {
+          negociacion.PRODUCT_NAME = "No hay material asociado a la programación"
+        }
+      })
     })
   }
 
