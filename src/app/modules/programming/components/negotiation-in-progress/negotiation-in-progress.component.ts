@@ -22,6 +22,10 @@ export class NegotiationInProgressComponent implements OnInit {
   contador: number = 0;
   private detailUrl: any[] = [];
   rowsProducts: any[] = [];
+  cantidadHoras: number = 0;
+  validarHorometroInicial: boolean = true;
+  validarHorometro: boolean = true;
+  activarBoton: boolean = true;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -44,9 +48,9 @@ export class NegotiationInProgressComponent implements OnInit {
       this.campos = {
         fotoRecibo: ['', [Validators.required]],
         numRecibo: ['', [Validators.required]],
-        horometroInicial: ['', [Validators.required]],
-        horometroFinal: ['', [Validators.required]],
-        cantidad: ['', [Validators.required]]
+        horometroInicial: [0, [Validators.required]],
+        horometroFinal: [0, [Validators.required]],
+        cantidad: [0, [Validators.required]]
       }
     }
     if (this.embudo === "7") {
@@ -64,6 +68,7 @@ export class NegotiationInProgressComponent implements OnInit {
     }
 
     this.updateProgramForm = this.formBuilder.group(this.campos)
+    this.calcularHoras()
 
     this.crm.getDealProductList(this.idProgrammation).subscribe((valueProducts: any) => {
       if (valueProducts) {
@@ -111,11 +116,18 @@ export class NegotiationInProgressComponent implements OnInit {
                       this.crm.actualizarProgramacion(this.idProgrammation, this.programationUpdate, this.embudo, this.detailUrl).subscribe({
                         'next': (programUpdate: any) => {
                           if (this.embudo !== "3") {
+                            let quantity;
+                            if (this.embudo === '9') {
+                              quantity = this.cantidadHoras;
+                              console.log('quantity', quantity)
+                            } else {
+                              quantity = this.updateProgramForm.value.cantidad;
+                            }
                             const rowsProductsSend = [
                               {
                                 PRODUCT_ID: this.rowsProducts[0].PRODUCT_ID,
                                 PRICE: this.rowsProducts[0].PRICE,
-                                QUANTITY: this.updateProgramForm.value.cantidad
+                                QUANTITY: quantity
                               }
                             ]
 
@@ -157,6 +169,24 @@ export class NegotiationInProgressComponent implements OnInit {
   newFile(file: File, nroFactura: string) {
     const fileName = file.name.split('.');
     return new File([file], `${nroFactura} - ${new Date(Date.now()).valueOf()}.${fileName.pop()}`, { type: file.type });
+  }
+
+  calcularHoras() {
+    this.updateProgramForm.valueChanges.subscribe(form => {
+      this.cantidadHoras = form.horometroFinal - form.horometroInicial;
+      if (form.horometroInicial < 0) {
+        this.validarHorometroInicial = false;
+        this.validarHorometro = false;
+        this.activarBoton = true;
+      } else if (form.horometroFinal <= form.horometroInicial) {
+        this.validarHorometroInicial = true;
+        this.validarHorometro = true;
+        this.activarBoton = true;
+      } else {
+        this.validarHorometro = false;
+        this.activarBoton = false;
+      }
+    })
   }
 
 }

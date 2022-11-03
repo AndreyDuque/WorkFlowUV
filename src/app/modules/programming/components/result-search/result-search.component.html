@@ -1,46 +1,48 @@
 <div class="container">
-  <h3 class="titulo text-center">Programaciones</h3>
-  <table class="table table-striped mt-5 container w-75 table-responsive">
-    <thead>
-      <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Programaciones</th>
-        <th scope="col">Material</th>
-        <th scope="col">Embudo</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let programmation of negociaciones">
-        <th scope="row">{{ programmation.ID }}</th>
-        <td class="text-nowrap">
-          <a
-            [routerLink]="['/programming/negotiation-in-progress']"
-            [queryParams]="{
-              idProgrammation: programmation.ID,
-              placa: placa,
-              embudo: programmation.CATEGORY_ID
-            }"
-            class="col-auto m-2 link-danger"
-            >{{ programmation.TITLE }}</a
-          >
-        </td>
-        <td class="text-nowrap">
-          {{ programmation.PRODUCT_NAME }}
-        </td>
-        <td class="text-nowrap">
-          {{
-            programmation.CATEGORY_ID === "7"
-              ? "volqueta"
-              : programmation.CATEGORY_ID === "3"
-              ? "Grua"
-              : programmation.CATEGORY_ID === "9"
-              ? "Maquina"
-              : "Desconocido"
-          }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <h3 class="titulo text-center">Programaciones asociadas a la placa <strong>{{ placa }}</strong></h3>
+  <div class="table-responsive">
+    <table class="table table-striped mt-5 container w-75">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Programaciones</th>
+          <th scope="col">Material</th>
+          <th scope="col">Embudo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let programmation of negociaciones">
+          <th scope="row">{{ programmation.ID }}</th>
+          <td class="text-nowrap">
+            <a
+              [routerLink]="['/programming/negotiation-in-progress']"
+              [queryParams]="{
+                idProgrammation: programmation.ID,
+                placa: placa,
+                embudo: programmation.CATEGORY_ID
+              }"
+              class="col-auto m-2 link-danger"
+              >{{ programmation.TITLE }}</a
+            >
+          </td>
+          <td class="text-nowrap">
+            {{ programmation.PRODUCT_NAME }}
+          </td>
+          <td class="text-nowrap">
+            {{
+              programmation.CATEGORY_ID === "7"
+                ? "volqueta"
+                : programmation.CATEGORY_ID === "3"
+                ? "Grua"
+                : programmation.CATEGORY_ID === "9"
+                ? "Maquina"
+                : "Desconocido"
+            }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div class="row d-flex justify-content-center align-content-center mt-5 mb-5">
     <a
       [routerLink]="['/programming']"

@@ -35,41 +35,46 @@
           />
         </div>
 
-        <div
-          class="input-group mt-3"
-          *ngIf="showInput(embudo, 'horometroInicial')"
+        <div *ngIf="showInput(embudo, 'horometroInicial')">
+          <div class="input-group mt-3">
+            <span class="input-group-text" id="basic-addon2"
+              >Horometro Inicial</span
+            >
+            <input
+              type="number"
+              name="horometroInicial"
+              formControlName="horometroInicial"
+              class="form-control"
+              aria-label="Horometro Inicial"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+          <span *ngIf="!validarHorometroInicial" class="text-danger"
+          >¡ El valor del horometro inicial no puede ser menor a cero !</span
         >
-          <span class="input-group-text" id="basic-addon2"
-            >Horometro Inicial</span
-          >
-          <input
-            type="number"
-            name="horometroInicial"
-            formControlName="horometroInicial"
-            class="form-control"
-            aria-label="Horometro Inicial"
-            aria-describedby="basic-addon1"
-          />
         </div>
 
-        <div
-          class="input-group mt-3"
-          *ngIf="showInput(embudo, 'horometroFinal')"
-        >
-          <span class="input-group-text" id="basic-addon3"
-            >Horometro Final</span
+        <div *ngIf="showInput(embudo, 'horometroFinal')">
+          <div class="input-group mt-3">
+            <span class="input-group-text" id="basic-addon3"
+              >Horometro Final</span
+            >
+            <input
+              type="number"
+              name="horometroFinal"
+              formControlName="horometroFinal"
+              class="form-control"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+          <span *ngIf="validarHorometro" class="text-danger"
+            >¡ El valor del horometro final debe ser mayor al valor del
+            horometro inicial !</span
           >
-          <input
-            type="number"
-            name="horometroFinal"
-            formControlName="horometroFinal"
-            class="form-control"
-            aria-label="Username"
-            aria-describedby="basic-addon1"
-          />
         </div>
 
-        <div class="input-group mt-3" *ngIf="showInput(embudo, 'cantidad')">
+        <div class="input-group mt-3" *ngIf="embudo === '7'">
           <span class="input-group-text" id="basic-addon4">Cantidad</span>
           <input
             type="number"
@@ -79,6 +84,14 @@
             aria-label="Username"
             aria-describedby="basic-addon1"
           />
+        </div>
+        <div
+          class="mt-3 border rounded p-2"
+          *ngIf="embudo === '9'"
+          [ngClass]="{ 'border-danger': cantidadHoras <= 0 }"
+        >
+          <label>Cantidad de horas:</label>
+          <span> {{ cantidadHoras }}</span>
         </div>
         <div class="row justify-content-between mt-5 mb-5 mx-1">
           <a
@@ -90,6 +103,7 @@
           <button
             type="submit"
             class="btn btn-outline-danger col-4 col-md-3"
+            [disabled]="activarBoton && embudo === '9'"
           >
             Enviar
           </button>
@@ -98,3 +112,8 @@
     </div>
   </div>
 </div>
+
+<!-- <div class="container">
+  <span>Prueba</span>
+  <pre>{{ updateProgramForm.value | json }}</pre>
+</div> -->
