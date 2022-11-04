@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from "@angular/common/http";
-import {environment} from "../../../../environments/environment";
-import {ServicesEnum} from "../utils/services.enum";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { environment } from "../../../../environments/environment";
+import { ServicesEnum } from "../utils/services.enum";
 
 @Injectable({
   providedIn: 'root'
@@ -15,27 +15,27 @@ export class CrmService {
   getDealForId(id: string) {
     const params = new HttpParams()
       .set('id', `${id}`)
-    return this.http.get(`${this.crm}/crm.deal.get.json`, {params})
+    return this.http.get(`${this.crm}/crm.deal.get.json`, { params })
   }
 
   getDealList(start: number, options: any) {
     const params = new HttpParams()
       .set('start', `${start}`)
     const body = options;
-    return this.http.post(`${this.crm}/crm.deal.list.json`, body, {params});
+    return this.http.post(`${this.crm}/crm.deal.list.json`, body, { params });
   }
 
   getDealProductList(id: string) {
     const params = new HttpParams()
       .set('id', `${id}`)
-    return this.http.get(`${this.crm}/crm.deal.productrows.get.json`, {params});
+    return this.http.get(`${this.crm}/crm.deal.productrows.get.json`, { params });
   }
 
   getCompanyList(id: string, options: any) {
     const params = new HttpParams()
       .set('id', `${id}`)
     const body = options;
-    return this.http.post(`${this.crm}/crm.company.list.json`, body, {params});
+    return this.http.post(`${this.crm}/crm.company.list.json`, body, { params });
   }
 
   enviarProgramacion(service: string, programacion: any, embudo: string) {
@@ -50,6 +50,18 @@ export class CrmService {
       UF_CRM_1659706553211: `${programacion.obra}`,
     }
 
+    if (service === ServicesEnum.maquina) {
+      fields = {
+        TITLE: `${programacion.obra}`,
+        CATEGORY_ID: `${embudo}`,
+        COMPANY_ID: `${programacion.idCompañia}`,
+        UF_CRM_1659706567283: `${programacion.placa}`,
+        UF_CRM_1659706553211: `${programacion.obra}`,
+        UF_CRM_1654545301774: `${programacion.standBy}`,
+        UF_CRM_1654545361346: `${programacion.horasStandBy}`
+      }
+    }
+
     if (service === ServicesEnum.grua) {
       fields = {
         TITLE: `${programacion.obra}`,
@@ -62,7 +74,7 @@ export class CrmService {
       }
     }
 
-    const body = {fields}
+    const body = { fields }
 
     return this.http.post(`${this.crm}/crm.deal.add`, body).toPromise();
   }
@@ -118,19 +130,19 @@ export class CrmService {
 
   }
 
-  uploadImage(url:string, file: File) {
+  uploadImage(url: string, file: File) {
     let body = new FormData();
     body.append('file', file)
     return this.http.post(`${url}`, body)
   }
 
   uploadImage2() {
-    let body = {id: 3};
+    let body = { id: 3 };
     return this.http.post(`${this.crm}/disk.folder.uploadFile?id=289`, body);
   }
 
-  showImage(id:number){
-    let body = {id: id}
+  showImage(id: number) {
+    let body = { id: id }
     return this.http.post(`${this.crm}/disk.file.getExternalLink`, body);
   }
 

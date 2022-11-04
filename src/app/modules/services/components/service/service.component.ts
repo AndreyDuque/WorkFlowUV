@@ -1,12 +1,12 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
-import {CrmService} from "../../../core/services/crm.service";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from "@angular/router";
+import { CrmService } from "../../../core/services/crm.service";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import * as $ from 'jquery';
-import {ServicesEnum} from "../../../core/utils/services.enum";
+import { ServicesEnum } from "../../../core/utils/services.enum";
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import {logMessages} from "@angular-devkit/build-angular/src/builders/browser-esbuild/esbuild";
+import { logMessages } from "@angular-devkit/build-angular/src/builders/browser-esbuild/esbuild";
 
 @Component({
   selector: 'volqueta',
@@ -94,7 +94,7 @@ export class ServiceComponent implements OnInit {
 
   getDataNegotiation() {
     const options = {
-      filter: {'STAGE_ID': `WON`, 'UF_CRM_1654179740278': `${this.codeService}`},
+      filter: { 'STAGE_ID': `WON`, 'UF_CRM_1654179740278': `${this.codeService}` },
     };
     this.crm.getDealList(0, options).subscribe({
       'next': (deals: any) => {
@@ -117,6 +117,10 @@ export class ServiceComponent implements OnInit {
             iniciador += 50;
           }
         }
+
+        this.negociaciones.forEach(negociacion => {
+          this.insertarStandBy(negociacion)
+        });
       },
       'error': err => console.log(err)
     })
@@ -125,9 +129,12 @@ export class ServiceComponent implements OnInit {
   newProgram() {
     if (this.programForm.valid) {
       let program = this.programForm.value;
+      const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
       program.idCompañia = this.compañiaSeleccionada;
       program.customId = this.negociacionesAEnviar.length + 1;
       program.producto = this.productSelected[0];
+      program.standBy = negociacionFiltrada.standBy;
+      program.horasStandBy = negociacionFiltrada.horasStandBy;
       this.negociacionesAEnviar.push(program);
       this.programForm.reset();
       this.getDataNegotiation();
@@ -164,7 +171,7 @@ export class ServiceComponent implements OnInit {
       );
     }
     let options = {
-      filter: {'UF_CRM_1659061343591': `${this.id}`},
+      filter: { 'UF_CRM_1659061343591': `${this.id}` },
     };
 
     this.crm.getCompanyList(`${this.id}`, options).subscribe({
@@ -176,13 +183,14 @@ export class ServiceComponent implements OnInit {
 
   async enviarProgramaciones() {
     let i = 0;
-    if(this.negociacionesAEnviar.length!==0){
+    if (this.negociacionesAEnviar.length !== 0) {
+      console.log('first', this.negociacionesAEnviar)
       while (i < this.negociacionesAEnviar.length) {
-        const idNegociacion: any = await this.crm.enviarProgramacion( `${this.path}`, this.negociacionesAEnviar[i], `${this.embudoId}`)
+        const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, this.negociacionesAEnviar[i], `${this.embudoId}`)
 
         if (idNegociacion) {
 
-          if(this.path ===this.servicesEnum.volqueta || this.path === this.servicesEnum.maquina){
+          if (this.path === this.servicesEnum.volqueta || this.path === this.servicesEnum.maquina) {
             const row = [
               {
                 PRODUCT_ID: this.negociacionesAEnviar[i].producto.PRODUCT_ID,
@@ -192,17 +200,17 @@ export class ServiceComponent implements OnInit {
             ]
             this.crm.agregarProductosANuevaProgramacion(`${idNegociacion.result}`, row).subscribe({
               'next': (productResult: any) => {
-                if(productResult) this.toastr.success('¡Nueva programacion '+ idNegociacion.result +' creada exitosamente!', '¡Bien!');
+                if (productResult) this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
               },
               'error': error => {
-                if(error) this.toastr.error('¡Algo salio mal!', '¡Error!');
+                if (error) this.toastr.error('¡Algo salio mal!', '¡Error!');
               },
             })
-          }else{
-            this.toastr.success('¡Nueva programacion '+ idNegociacion.result +' creada exitosamente!', '¡Bien!');
+          } else {
+            this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
           }
 
-        }else{
+        } else {
           this.toastr.error('¡Algo salio mal!', '¡Error!');
         }
         i++;
@@ -210,6 +218,16 @@ export class ServiceComponent implements OnInit {
     }
 
     this.router.navigate(['/services']).then()
+  }
+
+  insertarStandBy(negociacion: any) {
+    this.crm.getDealForId(negociacion.ID).subscribe({
+      'next': ((negociacionVenta: any) => {
+        negociacion.standBy = negociacionVenta.result.UF_CRM_1654545301774;
+        negociacion.horasStandBy = negociacionVenta.result.UF_CRM_1654545361346;
+      }),
+      'error': error => console.log(error)
+    })
   }
 
 }
