@@ -35,6 +35,24 @@
           />
         </div>
 
+        <div *ngIf="embudo === '9'" class="input-group mt-3">
+          <label class="input-group-text" for="inputGroupSelect01"
+            >Stand By</label
+          >
+          <select class="form-select" id="inputGroupSelect01">
+            <option selected>Si</option>
+            <option value="1">No</option>
+          </select>
+        </div>
+
+        <div
+          *ngIf="embudo === '9' && standBy === 'Si'"
+          class="mt-3 border rounded p-2"
+        >
+          <label>Horas de Stand By:</label>
+          <span> {{ horasStandBy }}</span>
+        </div>
+
         <div *ngIf="showInput(embudo, 'horometroInicial')">
           <div class="input-group mt-3">
             <span class="input-group-text" id="basic-addon2"
@@ -50,8 +68,8 @@
             />
           </div>
           <span *ngIf="!validarHorometroInicial" class="text-danger"
-          >¡ El valor del horometro inicial no puede ser menor a cero !</span
-        >
+            >¡ El valor del horometro inicial no puede ser menor a cero !</span
+          >
         </div>
 
         <div *ngIf="showInput(embudo, 'horometroFinal')">
@@ -68,8 +86,8 @@
               aria-describedby="basic-addon1"
             />
           </div>
-          <span *ngIf="validarHorometro" class="text-danger"
-            >¡ El valor del horometro final debe ser mayor al valor del
+          <span *ngIf="!validarHorometro" class="text-danger"
+            >¡ El valor del horometro final no puede ser menor al valor del
             horometro inicial !</span
           >
         </div>
@@ -85,6 +103,7 @@
             aria-describedby="basic-addon1"
           />
         </div>
+
         <div
           class="mt-3 border rounded p-2"
           *ngIf="embudo === '9'"
@@ -93,6 +112,14 @@
           <label>Cantidad de horas:</label>
           <span> {{ cantidadHoras }}</span>
         </div>
+        <span
+          *ngIf="
+            embudo === '9' && standBy === 'Si' && cantidadHoras <= horasStandBy
+          "
+          class="text-secondary"
+          >Se aplicaron las horas de Stand By</span
+        >
+
         <div class="row justify-content-between mt-5 mb-5 mx-1">
           <a
             [routerLink]="['/programming/result-search']"

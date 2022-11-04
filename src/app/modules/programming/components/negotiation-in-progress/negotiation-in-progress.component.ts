@@ -25,7 +25,9 @@ export class NegotiationInProgressComponent implements OnInit {
   cantidadHoras: number = 0;
   validarHorometroInicial: boolean = true;
   validarHorometro: boolean = true;
-  activarBoton: boolean = true;
+  activarBoton: boolean = false;
+  standBy: string = "No";
+  horasStandBy: number = 5;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -48,9 +50,8 @@ export class NegotiationInProgressComponent implements OnInit {
       this.campos = {
         fotoRecibo: ['', [Validators.required]],
         numRecibo: ['', [Validators.required]],
-        horometroInicial: [0, [Validators.required]],
-        horometroFinal: [0, [Validators.required]],
-        cantidad: [0, [Validators.required]]
+        horometroInicial: [[Validators.required]],
+        horometroFinal: [[Validators.required]]
       }
     }
     if (this.embudo === "7") {
@@ -119,7 +120,6 @@ export class NegotiationInProgressComponent implements OnInit {
                             let quantity;
                             if (this.embudo === '9') {
                               quantity = this.cantidadHoras;
-                              console.log('quantity', quantity)
                             } else {
                               quantity = this.updateProgramForm.value.cantidad;
                             }
@@ -172,19 +172,39 @@ export class NegotiationInProgressComponent implements OnInit {
   }
 
   calcularHoras() {
+    if (this.standBy === "Si") {
+      this.cantidadHoras = this.horasStandBy;
+    }
+
     this.updateProgramForm.valueChanges.subscribe(form => {
-      this.cantidadHoras = form.horometroFinal - form.horometroInicial;
+      console.log('this.cantidadHoras', this.cantidadHoras)
+      let horasCalculadas = form.horometroFinal - form.horometroInicial;
+      if (this.standBy === "Si" && horasCalculadas < this.horasStandBy) {
+        this.cantidadHoras = this.horasStandBy;
+      } else {
+        this.cantidadHoras = form.horometroFinal - form.horometroInicial;
+      }
+
       if (form.horometroInicial < 0) {
         this.validarHorometroInicial = false;
-        this.validarHorometro = false;
         this.activarBoton = true;
-      } else if (form.horometroFinal <= form.horometroInicial) {
+      } else if (form.horometroInicial === 0) {
         this.validarHorometroInicial = true;
-        this.validarHorometro = true;
+        this.activarBoton = false;
+      }
+
+      if (form.horometroFinal < form.horometroInicial) {
+        this.validarHorometro = false;
         this.activarBoton = true;
       } else {
-        this.validarHorometro = false;
-        this.activarBoton = false;
+        this.validarHorometro = true;
+        if (form.horometroInicial < 0) {
+          this.activarBoton = true;
+        }
+      }
+
+      if (!this.cantidadHoras) {
+        this.cantidadHoras = this.horasStandBy;
       }
     })
   }
