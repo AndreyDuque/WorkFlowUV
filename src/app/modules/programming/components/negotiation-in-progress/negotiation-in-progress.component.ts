@@ -27,7 +27,8 @@ export class NegotiationInProgressComponent implements OnInit {
   validarHorometro: boolean = true;
   activarBoton: boolean = false;
   standBy: string = "No";
-  horasStandBy: number = 5;
+  horasStandBy: number = 0;
+  programmingTitle: string = "";
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -67,6 +68,8 @@ export class NegotiationInProgressComponent implements OnInit {
         numRecibo: ['', [Validators.required]]
       }
     }
+
+    this.definirStandBy(this.idProgrammation);
 
     this.updateProgramForm = this.formBuilder.group(this.campos)
     this.calcularHoras()
@@ -172,9 +175,9 @@ export class NegotiationInProgressComponent implements OnInit {
   }
 
   calcularHoras() {
-    if (this.standBy === "Si") {
-      this.cantidadHoras = this.horasStandBy;
-    }
+    // if (this.standBy === "Si") {
+    //   this.cantidadHoras = this.horasStandBy;
+    // }
 
     this.updateProgramForm.valueChanges.subscribe(form => {
       console.log('this.cantidadHoras', this.cantidadHoras)
@@ -206,6 +209,42 @@ export class NegotiationInProgressComponent implements OnInit {
       if (!this.cantidadHoras) {
         this.cantidadHoras = this.horasStandBy;
       }
+    })
+  }
+
+  definirStandBy(idDeal: string) {
+    this.crm.getDealForId(idDeal).subscribe({
+      'next': ((deal: any) => {
+        console.log('deal', deal.result)
+        if (deal) {
+          let valorStandBy = deal.result.UF_CRM_1654545301774;
+          let horasStanBy = deal.result.UF_CRM_1654545361346;
+          switch (valorStandBy) {
+            case '81':
+              this.standBy = 'Si';
+              break;
+
+            case '83':
+              this.standBy = 'No';
+              break;
+
+            case '87':
+              this.standBy = 'N/A';
+              break;
+
+            default:
+              break;
+          }
+
+          if (horasStanBy !== '') {
+            this.horasStandBy = Number(horasStanBy);
+            this.cantidadHoras = this.horasStandBy;
+          }
+
+          this.programmingTitle = deal.result.UF_CRM_1659706553211;
+        }
+      }),
+      'error': error => console.log(error)
     })
   }
 
