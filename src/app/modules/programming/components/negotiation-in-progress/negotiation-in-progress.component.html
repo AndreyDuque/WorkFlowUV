@@ -1,5 +1,7 @@
 <div class="container">
-  <h3 class="titulo text-center">Actualizar Programación <strong>{{ programmingTitle }}</strong></h3>
+  <h3 class="titulo text-center">
+    Actualizar Programación <strong>{{ programmingTitle }}</strong>
+  </h3>
   <div class="row justify-content-center mt-5">
     <div class="col-12 col-md-8">
       <form
@@ -35,19 +37,25 @@
           />
         </div>
 
-        <div *ngIf="embudo === '9' && standBy === 'Si'" class="input-group mt-3">
+        <div
+          *ngIf="embudo === '9' && standBy === 'Si'"
+          class="input-group mt-3"
+        >
           <label class="input-group-text" for="inputGroupSelect01"
             >Stand By</label
           >
-          <select class="form-select" id="inputGroupSelect01">
-            <option selected>Si</option>
-            <option value="1">No</option>
-            <option value="1">N/A</option>
+          <select
+            class="form-select"
+            formControlName="standByField"
+          >
+            <option value="81">Si</option>
+            <option value="83">No</option>
+            <option value="87">N/A</option>
           </select>
         </div>
 
         <div
-          *ngIf="embudo === '9' && standBy === 'Si'"
+          *ngIf="embudo === '9' && standBy === 'Si' && standByField"
           class="mt-3 border rounded p-2"
         >
           <label>Horas de Stand By:</label>
@@ -115,7 +123,7 @@
         </div>
         <span
           *ngIf="
-            embudo === '9' && standBy === 'Si' && cantidadHoras <= horasStandBy
+            embudo === '9' && standBy === 'Si' && cantidadHoras <= horasStandBy && standByField
           "
           class="text-secondary"
           >Se aplicaron las horas de Stand By</span

@@ -27,6 +27,7 @@ export class NegotiationInProgressComponent implements OnInit {
   validarHorometro: boolean = true;
   activarBoton: boolean = false;
   standBy: string = "No";
+  standByField: boolean = true;
   horasStandBy: number = 0;
   programmingTitle: string = "";
 
@@ -52,7 +53,8 @@ export class NegotiationInProgressComponent implements OnInit {
         fotoRecibo: ['', [Validators.required]],
         numRecibo: ['', [Validators.required]],
         horometroInicial: [[Validators.required]],
-        horometroFinal: [[Validators.required]]
+        horometroFinal: [[Validators.required]],
+        standByField: ['81', [Validators.required]]
       }
     }
     if (this.embudo === "7") {
@@ -69,10 +71,9 @@ export class NegotiationInProgressComponent implements OnInit {
       }
     }
 
-    this.definirStandBy(this.idProgrammation);
-
-    this.updateProgramForm = this.formBuilder.group(this.campos)
-    this.calcularHoras()
+    this.updateProgramForm = this.formBuilder.group(this.campos);
+    this.definirStandBy();
+    // this.calcularHoras()
 
     this.crm.getDealProductList(this.idProgrammation).subscribe((valueProducts: any) => {
       if (valueProducts) {
@@ -182,10 +183,12 @@ export class NegotiationInProgressComponent implements OnInit {
     this.updateProgramForm.valueChanges.subscribe(form => {
       console.log('this.cantidadHoras', this.cantidadHoras)
       let horasCalculadas = form.horometroFinal - form.horometroInicial;
-      if (this.standBy === "Si" && horasCalculadas < this.horasStandBy) {
+      if (this.standBy === "Si" && horasCalculadas < this.horasStandBy && form.standByField === '81') {
         this.cantidadHoras = this.horasStandBy;
+        this.standByField = true;
       } else {
         this.cantidadHoras = form.horometroFinal - form.horometroInicial;
+        this.standByField = false;
       }
 
       if (form.horometroInicial < 0) {
@@ -208,12 +211,18 @@ export class NegotiationInProgressComponent implements OnInit {
 
       if (!this.cantidadHoras) {
         this.cantidadHoras = this.horasStandBy;
+        if (form.standByField !== '81') {
+          this.cantidadHoras = 0;
+          this.standByField = false;
+        } else {
+          this.standByField = true;
+        }
       }
     })
   }
 
-  definirStandBy(idDeal: string) {
-    this.crm.getDealForId(idDeal).subscribe({
+  definirStandBy() {
+    this.crm.getDealForId(this.idProgrammation).subscribe({
       'next': ((deal: any) => {
         console.log('deal', deal.result)
         if (deal) {
@@ -240,6 +249,8 @@ export class NegotiationInProgressComponent implements OnInit {
             this.horasStandBy = Number(horasStanBy);
             this.cantidadHoras = this.horasStandBy;
           }
+
+          this.calcularHoras();
 
           this.programmingTitle = deal.result.UF_CRM_1659706553211;
         }
