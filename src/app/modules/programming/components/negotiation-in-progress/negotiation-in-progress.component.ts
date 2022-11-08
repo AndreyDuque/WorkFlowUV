@@ -26,8 +26,6 @@ export class NegotiationInProgressComponent implements OnInit {
   validarHorometroInicial: boolean = true;
   validarHorometro: boolean = true;
   activarBoton: boolean = false;
-  standBy: string = "No";
-  standByField: boolean = true;
   horasStandBy: number = 0;
   programmingTitle: string = "";
 
@@ -54,7 +52,8 @@ export class NegotiationInProgressComponent implements OnInit {
         numRecibo: ['', [Validators.required]],
         horometroInicial: [[Validators.required]],
         horometroFinal: [[Validators.required]],
-        standByField: ['81', [Validators.required]]
+        standByField: ['81', [Validators.required]],
+        state: ['299', [Validators.required]]
       }
     }
     if (this.embudo === "7") {
@@ -73,7 +72,6 @@ export class NegotiationInProgressComponent implements OnInit {
 
     this.updateProgramForm = this.formBuilder.group(this.campos);
     this.definirStandBy();
-    // this.calcularHoras()
 
     this.crm.getDealProductList(this.idProgrammation).subscribe((valueProducts: any) => {
       if (valueProducts) {
@@ -117,6 +115,7 @@ export class NegotiationInProgressComponent implements OnInit {
                     if (this.contador == this.files.length) {
                       this.programationUpdate = this.updateProgramForm.value;
                       this.programationUpdate['etapa'] = `C${this.embudo}:PREPARATION`;
+                      this.programationUpdate['horasStandBy'] = this.horasStandBy;
 
                       this.crm.actualizarProgramacion(this.idProgrammation, this.programationUpdate, this.embudo, this.detailUrl).subscribe({
                         'next': (programUpdate: any) => {
@@ -167,7 +166,6 @@ export class NegotiationInProgressComponent implements OnInit {
     for (let i = 0; i < filesLoad.length; i++) {
       this.files.push(filesLoad[i]);
     }
-    console.log('Archivos: ', this.files);
   }
 
   newFile(file: File, nroFactura: string) {
@@ -176,19 +174,12 @@ export class NegotiationInProgressComponent implements OnInit {
   }
 
   calcularHoras() {
-    // if (this.standBy === "Si") {
-    //   this.cantidadHoras = this.horasStandBy;
-    // }
-
     this.updateProgramForm.valueChanges.subscribe(form => {
-      console.log('this.cantidadHoras', this.cantidadHoras)
       let horasCalculadas = form.horometroFinal - form.horometroInicial;
-      if (this.standBy === "Si" && horasCalculadas < this.horasStandBy && form.standByField === '81') {
+      if (horasCalculadas < this.horasStandBy && form.standByField === '81') {
         this.cantidadHoras = this.horasStandBy;
-        this.standByField = true;
       } else {
         this.cantidadHoras = form.horometroFinal - form.horometroInicial;
-        this.standByField = false;
       }
 
       if (form.horometroInicial < 0) {
@@ -204,6 +195,7 @@ export class NegotiationInProgressComponent implements OnInit {
         this.activarBoton = true;
       } else {
         this.validarHorometro = true;
+        this.activarBoton = false;
         if (form.horometroInicial < 0) {
           this.activarBoton = true;
         }
@@ -213,9 +205,6 @@ export class NegotiationInProgressComponent implements OnInit {
         this.cantidadHoras = this.horasStandBy;
         if (form.standByField !== '81') {
           this.cantidadHoras = 0;
-          this.standByField = false;
-        } else {
-          this.standByField = true;
         }
       }
     })
@@ -224,26 +213,8 @@ export class NegotiationInProgressComponent implements OnInit {
   definirStandBy() {
     this.crm.getDealForId(this.idProgrammation).subscribe({
       'next': ((deal: any) => {
-        console.log('deal', deal.result)
         if (deal) {
-          let valorStandBy = deal.result.UF_CRM_1654545301774;
           let horasStanBy = deal.result.UF_CRM_1654545361346;
-          switch (valorStandBy) {
-            case '81':
-              this.standBy = 'Si';
-              break;
-
-            case '83':
-              this.standBy = 'No';
-              break;
-
-            case '87':
-              this.standBy = 'N/A';
-              break;
-
-            default:
-              break;
-          }
 
           if (horasStanBy !== '') {
             this.horasStandBy = Number(horasStanBy);
