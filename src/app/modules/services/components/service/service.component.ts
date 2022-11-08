@@ -129,7 +129,6 @@ export class ServiceComponent implements OnInit {
   newProgram() {
     if (this.programForm.valid) {
       let program = this.programForm.value;
-      console.log('first', this.productSelected)
       if (this.productSelected.length > 0) {
         const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
         program.standBy = negociacionFiltrada.standBy;
