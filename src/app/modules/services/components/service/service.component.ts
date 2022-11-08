@@ -129,12 +129,16 @@ export class ServiceComponent implements OnInit {
   newProgram() {
     if (this.programForm.valid) {
       let program = this.programForm.value;
-      const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
+      console.log('first', this.productSelected)
+      if (this.productSelected.length > 0) {
+        const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
+        program.standBy = negociacionFiltrada.standBy;
+        program.horasStandBy = negociacionFiltrada.horasStandBy;
+      }
       program.idCompañia = this.compañiaSeleccionada;
       program.customId = this.negociacionesAEnviar.length + 1;
       program.producto = this.productSelected[0];
-      program.standBy = negociacionFiltrada.standBy;
-      program.horasStandBy = negociacionFiltrada.horasStandBy;
+
       this.negociacionesAEnviar.push(program);
       this.programForm.reset();
       this.getDataNegotiation();

@@ -27,6 +27,7 @@ export class NegotiationInProgressComponent implements OnInit {
   validarHorometro: boolean = true;
   activarBoton: boolean = false;
   horasStandBy: number = 0;
+  valorStandBy: boolean = true;
   programmingTitle: string = "";
 
   constructor(
@@ -178,8 +179,10 @@ export class NegotiationInProgressComponent implements OnInit {
       let horasCalculadas = form.horometroFinal - form.horometroInicial;
       if (horasCalculadas < this.horasStandBy && form.standByField === '81') {
         this.cantidadHoras = this.horasStandBy;
+        this.valorStandBy = true;
       } else {
         this.cantidadHoras = form.horometroFinal - form.horometroInicial;
+        this.valorStandBy = false;
       }
 
       if (form.horometroInicial < 0) {
@@ -205,6 +208,8 @@ export class NegotiationInProgressComponent implements OnInit {
         this.cantidadHoras = this.horasStandBy;
         if (form.standByField !== '81') {
           this.cantidadHoras = 0;
+        } else {
+          this.valorStandBy = true;
         }
       }
     })
