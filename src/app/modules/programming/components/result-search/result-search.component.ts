@@ -62,7 +62,7 @@ export class ResultSearchComponent implements OnInit {
           let productName = product.result[0].PRODUCT_NAME
           negociacion.PRODUCT_NAME = productName
         } else {
-          negociacion.PRODUCT_NAME = "No hay material asociado a la programación"
+          negociacion.PRODUCT_NAME = "N/A"
         }
       })
     })

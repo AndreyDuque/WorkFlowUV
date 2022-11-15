@@ -29,6 +29,7 @@ export class NegotiationInProgressComponent implements OnInit {
   horasStandBy: number = 0;
   valorStandBy: boolean = true;
   programmingTitle: string = "";
+  setProduct: boolean = true;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -118,32 +119,32 @@ export class NegotiationInProgressComponent implements OnInit {
                       this.programationUpdate['etapa'] = `C${this.embudo}:PREPARATION`;
                       this.programationUpdate['horasStandBy'] = this.horasStandBy;
 
-                      this.crm.actualizarProgramacion(this.idProgrammation, this.programationUpdate, this.embudo, this.detailUrl).subscribe({
-                        'next': (programUpdate: any) => {
-                          if (this.embudo !== "3") {
-                            let quantity;
-                            if (this.embudo === '9') {
-                              quantity = this.cantidadHoras;
-                            } else {
-                              quantity = this.updateProgramForm.value.cantidad;
-                            }
-                            const rowsProductsSend = [
-                              {
-                                PRODUCT_ID: this.rowsProducts[0].PRODUCT_ID,
-                                PRICE: this.rowsProducts[0].PRICE,
-                                QUANTITY: quantity
-                              }
-                            ]
-
-                            this.crm.agregarProductosANuevaProgramacion(this.idProgrammation, rowsProductsSend).subscribe();
-                          }
-                          if (programUpdate) this.toastr.success('¡Programacion ' + this.idProgrammation + ' actualizada exitosamente!', '¡Bien!');
-                        },
-                        'error': err => {
-                          if (err) this.toastr.error('¡Algo salio mal!', '¡Error!');
+                      // AGREGAR PRODUCTOS A PROGRAMACIÓN
+                      if (this.embudo !== "3") {
+                        let quantity;
+                        if (this.embudo === '9') {
+                          quantity = this.cantidadHoras;
+                        } else {
+                          quantity = this.updateProgramForm.value.cantidad;
                         }
-                      });
-                      this.router.navigate(['/programming']).then();
+                        const rowsProductsSend = [
+                          {
+                            PRODUCT_ID: this.rowsProducts[0].PRODUCT_ID,
+                            PRICE: this.rowsProducts[0].PRICE,
+                            QUANTITY: quantity
+                          }
+                        ]
+
+                        this.crm.agregarProductosANuevaProgramacion(this.idProgrammation, rowsProductsSend).subscribe({
+                          'next': (product: any) => {
+                            if (product) this.updateProgramming();
+                          },
+                          'error': (error) => {
+                            this.toastr.error('¡Algo salio mal!', '¡Error!');
+                            console.log(error)
+                          }
+                        });
+                      } else this.updateProgramming();
                     }
                   }
                 })
@@ -160,6 +161,22 @@ export class NegotiationInProgressComponent implements OnInit {
         // footer: '<a href="">Why do I have this issue?</a>'
       })
     }
+  }
+
+  updateProgramming() {
+    if (this.setProduct) {
+      this.crm.actualizarProgramacion(this.idProgrammation, this.programationUpdate, this.embudo, this.detailUrl).subscribe({
+        'next': (programUpdate: any) => {
+          if (programUpdate) {
+            this.toastr.success('¡Programacion ' + this.idProgrammation + ' actualizada exitosamente!', '¡Bien!');
+            this.router.navigate(['/programming']).then();
+          }
+        },
+        'error': err => {
+          if (err) this.toastr.error('¡Algo salio mal!', '¡Error!');
+        }
+      });
+    } else this.toastr.error('¡Algo salio mal!', '¡Error!');
   }
 
   uploadFileEvt(imgFile: any) {

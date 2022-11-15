@@ -31,9 +31,10 @@ export class CrmService {
     return this.http.get(`${this.crm}/crm.deal.productrows.get.json`, { params });
   }
 
-  getCompanyList(id: string, options: any) {
+  getCompanyList(start: number, id: string, options: any) {
     const params = new HttpParams()
       .set('id', `${id}`)
+      .set('start', `${start}`)
     const body = options;
     return this.http.post(`${this.crm}/crm.company.list.json`, body, { params });
   }

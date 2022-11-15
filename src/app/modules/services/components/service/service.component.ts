@@ -98,29 +98,34 @@ export class ServiceComponent implements OnInit {
     };
     this.crm.getDealList(0, options).subscribe({
       'next': (deals: any) => {
-        this.negociaciones = [];
-        this.negociaciones = deals.result;
-        if (deals.total > 50) {
-          let totalNegociaciones = deals.total;
-          let iniciador = 50;
-          while (iniciador < totalNegociaciones) {
-            this.crm.getDealList(iniciador, options).subscribe({
-              'next': (dealsSiguiente: any) => {
-                const negociacionesSiguientes = dealsSiguiente.result;
-                for (let i = 0; i < negociacionesSiguientes.length; i++) {
-                  this.negociaciones.push(negociacionesSiguientes[i]);
+        // this.negociaciones = [];
+        if (deals.result) {
+          this.negociaciones = deals.result;
+          if (deals.total > 50) {
+            let totalNegociaciones = deals.total;
+            let iniciador = 50;
+            while (iniciador < totalNegociaciones) {
+              this.crm.getDealList(iniciador, options).subscribe({
+                'next': (dealsSiguiente: any) => {
+                  const negociacionesSiguientes = dealsSiguiente.result;
+                  for (let i = 0; i < negociacionesSiguientes.length; i++) {
+                    this.negociaciones.push(negociacionesSiguientes[i]);
 
-                }
-              },
-              'error': err => console.log(err)
-            })
-            iniciador += 50;
+                  }
+                },
+                'error': err => console.log(err)
+              })
+              iniciador += 50;
+            }
           }
-        }
 
-        this.negociaciones.forEach(negociacion => {
-          this.insertarStandBy(negociacion)
-        });
+          if (this.path === ServicesEnum.maquina) {
+            this.negociaciones.forEach(negociacion => {
+              this.insertarStandBy(negociacion)
+            });
+          }
+
+        }
       },
       'error': err => console.log(err)
     })
@@ -177,11 +182,28 @@ export class ServiceComponent implements OnInit {
       filter: { 'UF_CRM_1659061343591': `${this.id}` },
     };
 
-    this.crm.getCompanyList(`${this.id}`, options).subscribe({
+    this.crm.getCompanyList(0, `${this.id}`, options).subscribe({
       'next': (companies: any) => {
         this.placas = companies.result;
-      }
+        if (companies.total > 50) {
+          let start = 50;
+          while (start < companies.total) {
+            this.crm.getCompanyList(start, `${this.id}`, options).subscribe({
+              'next': (companiesSiguientes: any) => {
+                const companies = companiesSiguientes.result;
+                for (let i = 0; i < companies.length; i++) {
+                  this.placas.push(companies[i]);
+                }
+              },
+              'error': error => console.log(error)
+            })
+            start += 50;
+          }
+        }
+      },
+      'error': error => console.log(error)
     });
+    console.log('Placas:', this.placas)
   }
 
   async enviarProgramaciones() {
@@ -231,6 +253,7 @@ export class ServiceComponent implements OnInit {
       }),
       'error': error => console.log(error)
     })
+    console.log('first', this.negociaciones)
   }
 
 }
