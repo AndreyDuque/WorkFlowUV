@@ -87,9 +87,9 @@ export class ServiceComponent implements OnInit {
 
     this.programForm = this.formBuilder.group(this.campos)
     this.traerPlacas();
-    $('#datalistOptions2').click(function (e) {
-      console.log(e)
-    })
+    // $('#datalistOptions2').click(function (e) {
+    //   console.log(e)
+    // })
   }
 
   getDataNegotiation() {
@@ -203,13 +203,11 @@ export class ServiceComponent implements OnInit {
       },
       'error': error => console.log(error)
     });
-    console.log('Placas:', this.placas)
   }
 
   async enviarProgramaciones() {
     let i = 0;
     if (this.negociacionesAEnviar.length !== 0) {
-      console.log('first', this.negociacionesAEnviar)
       while (i < this.negociacionesAEnviar.length) {
         const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, this.negociacionesAEnviar[i], `${this.embudoId}`)
 
@@ -253,7 +251,6 @@ export class ServiceComponent implements OnInit {
       }),
       'error': error => console.log(error)
     })
-    console.log('first', this.negociaciones)
   }
 
 }
