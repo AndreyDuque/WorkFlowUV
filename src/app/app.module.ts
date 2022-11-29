@@ -9,6 +9,7 @@ import {PageNotFoundComponent} from "./modules/core/shared/components/page-not-f
 import {ToastrModule} from "ngx-toastr";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import { FooterComponent } from './modules/core/shared/components/footer/footer.component';
+import { SpinnerModule } from './modules/core/shared/components/spinner/spinner.module';
 
 @NgModule({
   declarations: [
@@ -23,8 +24,8 @@ import { FooterComponent } from './modules/core/shared/components/footer/footer.
     BrowserAnimationsModule,
     AppRoutingModule,
     ToastrModule.forRoot(),
+    SpinnerModule
   ],
-  providers: [],
   exports: [
     MainLayoutComponent,
     FooterComponent

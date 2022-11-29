@@ -106,6 +106,7 @@ export class NegotiationInProgressComponent implements OnInit {
     if (this.updateProgramForm.valid) {
       this.crm.uploadImage2().subscribe((value: any) => {
         if (value) {
+          this.router.navigate(['/programming']).then();
           for (let j = 0; j < this.files.length; j++) {
             const file = this.newFile(this.files[j], this.updateProgramForm.value.numRecibo);
             this.crm.uploadImage(value?.result.uploadUrl, file).subscribe((value2: any) => {
@@ -169,7 +170,7 @@ export class NegotiationInProgressComponent implements OnInit {
         'next': (programUpdate: any) => {
           if (programUpdate) {
             this.toastr.success('¡Programacion ' + this.idProgrammation + ' actualizada exitosamente!', '¡Bien!');
-            this.router.navigate(['/programming']).then();
+            // this.router.navigate(['/programming']).then();
           }
         },
         'error': err => {
