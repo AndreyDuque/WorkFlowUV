@@ -110,7 +110,6 @@ export class ServiceComponent implements OnInit {
                   const negociacionesSiguientes = dealsSiguiente.result;
                   for (let i = 0; i < negociacionesSiguientes.length; i++) {
                     this.negociaciones.push(negociacionesSiguientes[i]);
-
                   }
                 },
                 'error': err => console.log(err)

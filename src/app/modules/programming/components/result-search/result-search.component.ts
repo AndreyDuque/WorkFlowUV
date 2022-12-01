@@ -11,6 +11,7 @@ import { CrmService } from "../../../core/services/crm.service";
 export class ResultSearchComponent implements OnInit {
   public negociaciones: any[] = [];
   public placa: string = '';
+  start: number = 0;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -22,33 +23,33 @@ export class ResultSearchComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(query => {
       this.placa = query['placa']
-      this.getDataNegotiation()
     })
+    this.getDataNegotiation()
   }
 
   getDataNegotiation() {
     const options = {
-      // 'STAGE_ID': `C7:NEW`,
       filter: {
-        'UF_CRM_1659706567283': `${this.placa}`
+        'UF_CRM_1659706567283': `${this.placa}`,
+        'STAGE_ID': ['C7:NEW', 'C3:NEW', 'C9:NEW']
       },
     };
-    this.crm.getDealList(0, options).subscribe({
+    this.crm.getDealList(this.start, options).subscribe({
       'next': (deals: any) => {
-        this.negociaciones = [];
-        this.negociaciones = deals.result;
-        this.negociaciones = this.negociaciones.filter(negociacion => negociacion.STAGE_ID === "C7:NEW" || negociacion.STAGE_ID === "C3:NEW" || negociacion.STAGE_ID === "C9:NEW")
-        this.negociaciones.forEach(negociacion => {
-          this.getProduct(negociacion)
-        })
-        if (this.negociaciones.length == 0) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: '¡No hay programaciones, seleccione otra placa!',
-            // footer: '<a href="">Why do I have this issue?</a>'
+        if (deals.result) {
+          this.negociaciones = deals.result;
+          this.negociaciones.forEach(negociacion => {
+            this.getProduct(negociacion)
           })
-          this.router.navigate(['/programming']);
+          if (this.negociaciones.length == 0) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: '¡No hay programaciones, seleccione otra placa!',
+              // footer: '<a href="">Why do I have this issue?</a>'
+            })
+            this.router.navigate(['/programming']);
+          }
         }
       },
       'error': err => console.log(err)
