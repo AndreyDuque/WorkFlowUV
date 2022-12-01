@@ -10,7 +10,7 @@
         path === servicesEnum.volqueta
           ? 'mt-3 col-12 col-md-4'
           : path === servicesEnum.grua
-          ? 'mt-3 col-6 col-md-3'
+          ? 'mt-3 col-12 col-md-3'
           : 'mt-3 col-12 col-md-4'
       "
     >
@@ -39,10 +39,9 @@
         path === servicesEnum.volqueta
           ? 'mt-3 col-12 col-md-4'
           : path === servicesEnum.grua
-          ? 'mt-3 col-6 col-md-2'
+          ? 'mt-3 col-6 col-md-3'
           : 'mt-3 col-12 col-md-4'
       "
-      *ngIf="path !== servicesEnum.grua"
     >
       <label for="exampleDataList2" class="form-label"
         ><strong>Material</strong></label
@@ -72,7 +71,7 @@
         path === servicesEnum.volqueta
           ? 'mt-3 col-12 col-md-4'
           : path === servicesEnum.grua
-          ? 'mt-3 col-6 col-md-3'
+          ? 'mt-3 col-6 col-md-2'
           : 'mt-3 col-12 col-md-4'
       "
     >
@@ -95,7 +94,7 @@
       </datalist>
     </div>
 
-    <div class="mt-3 col-6 col-md-3" *ngIf="path == servicesEnum.grua">
+    <div class="mt-3 col-6 col-md-2" *ngIf="path == servicesEnum.grua">
       <label for="exampleFormControlInput1" class="form-label"
         ><strong>Origen</strong></label
       >
@@ -109,7 +108,7 @@
       />
     </div>
 
-    <div class="mt-3 col-6 col-md-3" *ngIf="path == servicesEnum.grua">
+    <div class="mt-3 col-6 col-md-2" *ngIf="path == servicesEnum.grua">
       <label for="exampleFormControlInput2" class="form-label"
         ><strong>Destino</strong></label
       >

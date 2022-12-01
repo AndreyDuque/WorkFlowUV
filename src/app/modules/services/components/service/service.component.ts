@@ -71,6 +71,7 @@ export class ServiceComponent implements OnInit {
     if (this.path === ServicesEnum.grua) {
       this.campos = {
         obra: ['', [Validators.required]],
+        material: ['', [Validators.required]],
         placa: ['', [Validators.required]],
         origen: ['', [Validators.required]],
         destino: ['', [Validators.required]],
@@ -212,7 +213,7 @@ export class ServiceComponent implements OnInit {
 
         if (idNegociacion) {
 
-          if (this.path === this.servicesEnum.volqueta || this.path === this.servicesEnum.maquina) {
+          if (this.path === this.servicesEnum.volqueta || this.path === this.servicesEnum.maquina || this.path === this.servicesEnum.grua) {
             const row = [
               {
                 PRODUCT_ID: this.negociacionesAEnviar[i].producto.PRODUCT_ID,

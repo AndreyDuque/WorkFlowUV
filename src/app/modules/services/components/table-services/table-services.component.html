@@ -5,7 +5,7 @@
       <thead>
         <tr>
           <th scope="col">Obra</th>
-          <th scope="col" *ngIf="this.path !== servicesEnum.grua">Material</th>
+          <th scope="col">Material</th>
           <th scope="col">{{campoTabla}}</th>
           <th scope="col" *ngIf="this.path == servicesEnum.grua">Origen</th>
           <th scope="col" *ngIf="this.path == servicesEnum.grua">Destino</th>
@@ -15,7 +15,7 @@
       <tbody *ngFor="let negociacion of negociaciones">
         <tr>
           <td class="text-nowrap" scope="row">{{negociacion.obra}}</td>
-          <td class="text-nowrap" *ngIf="this.path !== servicesEnum.grua">{{negociacion.material}}</td>
+          <td class="text-nowrap">{{negociacion.material}}</td>
           <td class="text-nowrap">{{negociacion.placa}}</td>
           <td class="text-nowrap" *ngIf="this.path == servicesEnum.grua">{{negociacion.origen}}</td>
           <td class="text-nowrap" *ngIf="this.path == servicesEnum.grua">{{negociacion.destino}}</td>
