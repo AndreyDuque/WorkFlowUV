@@ -49,6 +49,7 @@ export class CrmService {
       COMPANY_ID: `${programacion.idCompañia}`,
       UF_CRM_1659706567283: `${programacion.placa}`,
       UF_CRM_1659706553211: `${programacion.obra}`,
+      UF_CRM_1654179740278: [63]
     }
 
     if (service === ServicesEnum.maquina) {
@@ -59,7 +60,8 @@ export class CrmService {
         UF_CRM_1659706567283: `${programacion.placa}`,
         UF_CRM_1659706553211: `${programacion.obra}`,
         UF_CRM_1654545301774: `${programacion.standBy}`,
-        UF_CRM_1654545361346: `${programacion.horasStandBy}`
+        UF_CRM_1654545361346: `${programacion.horasStandBy}`,
+        UF_CRM_1654179740278: [65]
       }
     }
 
@@ -71,7 +73,8 @@ export class CrmService {
         UF_CRM_1659706567283: `${programacion.placa}`,
         UF_CRM_1659706553211: `${programacion.obra}`,
         UF_CRM_1654545135809: [`${programacion.origen}`],
-        UF_CRM_1654545151906: [`${programacion.destino}`]
+        UF_CRM_1654545151906: [`${programacion.destino}`],
+        UF_CRM_1654179740278: [67]
       }
     }
 

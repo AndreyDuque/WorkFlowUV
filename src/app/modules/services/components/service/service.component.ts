@@ -64,7 +64,7 @@ export class ServiceComponent implements OnInit {
       this.campos = {
         obra: ['', [Validators.required]],
         material: ['', [Validators.required]],
-        placa: ['', [Validators.required]],
+        placa: [''],
       }
     }
 
@@ -72,7 +72,7 @@ export class ServiceComponent implements OnInit {
       this.campos = {
         obra: ['', [Validators.required]],
         material: ['', [Validators.required]],
-        placa: ['', [Validators.required]],
+        placa: [''],
         origen: ['', [Validators.required]],
         destino: ['', [Validators.required]],
       }
@@ -82,7 +82,7 @@ export class ServiceComponent implements OnInit {
       this.campos = {
         obra: ['', [Validators.required]],
         material: ['', [Validators.required]],
-        placa: ['', [Validators.required]],
+        placa: [''],
       }
     }
 
@@ -144,6 +144,8 @@ export class ServiceComponent implements OnInit {
       program.producto = this.productSelected[0];
 
       this.negociacionesAEnviar.push(program);
+      this.enviarProgramaciones("asignacion");
+
       this.programForm.reset();
       this.getDataNegotiation();
     } else {
@@ -205,11 +207,18 @@ export class ServiceComponent implements OnInit {
     });
   }
 
-  async enviarProgramaciones() {
+  async enviarProgramaciones(embudo: string) {
     let i = 0;
-    if (this.negociacionesAEnviar.length !== 0) {
-      while (i < this.negociacionesAEnviar.length) {
-        const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, this.negociacionesAEnviar[i], `${this.embudoId}`)
+    let embudoId = this.embudoId;
+    console.log('this.negociacionesAEnviar', this.negociacionesAEnviar)
+    let totalNegociaciones = this.negociacionesAEnviar.length;
+    if (embudo === 'asignacion') {
+      i = totalNegociaciones - 1;
+      embudoId = "21";
+    }
+    if (totalNegociaciones !== 0) {
+      while (i < totalNegociaciones) {
+        const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, this.negociacionesAEnviar[i], `${embudoId}`)
 
         if (idNegociacion) {
 
@@ -223,24 +232,30 @@ export class ServiceComponent implements OnInit {
             ]
             this.crm.agregarProductosANuevaProgramacion(`${idNegociacion.result}`, row).subscribe({
               'next': (productResult: any) => {
-                if (productResult) this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
+                if (productResult && embudo !== 'asignacion') this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
               },
               'error': error => {
                 if (error) this.toastr.error('¡Algo salio mal!', '¡Error!');
               },
             })
           } else {
-            this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
+            if (embudo !== 'asignacion') {
+              this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
+            }
           }
 
         } else {
           this.toastr.error('¡Algo salio mal!', '¡Error!');
         }
         i++;
+        if (embudo === 'asignacion') {
+          break;
+        }
       }
     }
-
-    this.router.navigate(['/services']).then()
+    if (embudo !== 'asignacion') {
+      this.router.navigate(['/services']).then()
+    }
   }
 
   insertarStandBy(negociacion: any) {
