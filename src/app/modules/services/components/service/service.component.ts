@@ -17,6 +17,7 @@ export class ServiceComponent implements OnInit {
 
   programForm!: FormGroup;
   negociacionesAEnviar: any[] = [];
+  asignacionesAEnviar: any[] = [];
   productosAEnviar: any[] = [];
   codeService = '';
   id = '';
@@ -88,6 +89,7 @@ export class ServiceComponent implements OnInit {
 
     this.programForm = this.formBuilder.group(this.campos)
     this.traerPlacas();
+    this.actualizarNegociacionesAEnviar();
     // $('#datalistOptions2').click(function (e) {
     //   console.log(e)
     // })
@@ -140,10 +142,12 @@ export class ServiceComponent implements OnInit {
         program.horasStandBy = negociacionFiltrada.horasStandBy;
       }
       program.idCompañia = this.compañiaSeleccionada;
-      program.customId = this.negociacionesAEnviar.length + 1;
+      // program.customId = this.negociacionesAEnviar.length + 1;
       program.producto = this.productSelected[0];
 
-      this.negociacionesAEnviar.push(program);
+      // this.negociacionesAEnviar.push(program);
+      this.asignacionesAEnviar.push(program);
+      console.log('Asignaciones a enviar:', this.asignacionesAEnviar);
       this.enviarProgramaciones("asignacion");
 
       this.programForm.reset();
@@ -169,7 +173,7 @@ export class ServiceComponent implements OnInit {
     }
   }
 
-  actualizarNegociacionesAEnviar(event: any) {
+  actualizarProgramacionesAEnviar(event: any) {
     this.negociacionesAEnviar = event;
   }
 
@@ -179,6 +183,7 @@ export class ServiceComponent implements OnInit {
       this.productSelected = this.materiales.filter(
         product => product.PRODUCT_NAME === event.target.value
       );
+      console.log('Producto seleccionado:', this.productSelected)
     }
     let options = {
       filter: { 'UF_CRM_1659061343591': `${this.id}` },
@@ -210,29 +215,36 @@ export class ServiceComponent implements OnInit {
   async enviarProgramaciones(embudo: string) {
     let i = 0;
     let embudoId = this.embudoId;
+    let negociacionesAEnviar = this.negociacionesAEnviar;
     console.log('this.negociacionesAEnviar', this.negociacionesAEnviar)
     let totalNegociaciones = this.negociacionesAEnviar.length;
     if (embudo === 'asignacion') {
+      totalNegociaciones = this.asignacionesAEnviar.length;
       i = totalNegociaciones - 1;
       embudoId = "21";
+      negociacionesAEnviar = this.asignacionesAEnviar;
     }
     if (totalNegociaciones !== 0) {
       while (i < totalNegociaciones) {
-        const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, this.negociacionesAEnviar[i], `${embudoId}`)
+        const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, negociacionesAEnviar[i], `${embudoId}`)
 
         if (idNegociacion) {
 
           if (this.path === this.servicesEnum.volqueta || this.path === this.servicesEnum.maquina || this.path === this.servicesEnum.grua) {
             const row = [
               {
-                PRODUCT_ID: this.negociacionesAEnviar[i].producto.PRODUCT_ID,
-                PRICE: this.negociacionesAEnviar[i].producto.PRICE,
-                QUANTITY: this.negociacionesAEnviar[i].producto.QUANTITY
+                PRODUCT_ID: negociacionesAEnviar[i].producto.PRODUCT_ID,
+                PRICE: negociacionesAEnviar[i].producto.PRICE,
+                QUANTITY: negociacionesAEnviar[i].producto.QUANTITY
               }
             ]
             this.crm.agregarProductosANuevaProgramacion(`${idNegociacion.result}`, row).subscribe({
               'next': (productResult: any) => {
-                if (productResult && embudo !== 'asignacion') this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
+                if (productResult && embudo !== 'asignacion') {
+                  this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
+                } else {
+                  this.actualizarNegociacionesAEnviar();
+                }
               },
               'error': error => {
                 if (error) this.toastr.error('¡Algo salio mal!', '¡Error!');
@@ -264,6 +276,52 @@ export class ServiceComponent implements OnInit {
         negociacion.standBy = negociacionVenta.result.UF_CRM_1654545301774;
         negociacion.horasStandBy = negociacionVenta.result.UF_CRM_1654545361346;
       }),
+      'error': error => console.log(error)
+    })
+  }
+
+  actualizarNegociacionesAEnviar() {
+    this.negociacionesAEnviar = [];
+    const options = {
+      filter:
+      {
+        'STAGE_ID': 'C21:NEW',
+        'UF_CRM_1654179740278': this.codeService
+      },
+      select:
+        [
+          "ID", "COMPANY_ID", "UF_CRM_1659706553211", "UF_CRM_1659706567283", "UF_CRM_1654545135809",
+          "UF_CRM_1654545151906", "UF_CRM_1654545301774", "UF_CRM_1654545361346"
+        ]
+    };
+    this.crm.getDealList(0, options).subscribe({
+      'next': (negociaciones: any) => {
+        console.log('Negociaciones pendientes de asignación:', negociaciones);
+        const negociacines = negociaciones.result;
+        negociacines.forEach((negociacion: any) => {
+          this.crm.getDealProductList(negociacion.ID).subscribe({
+            'next': (producto: any) => {
+              console.log('producto', producto)
+              this.negociacionesAEnviar.push(
+                {
+                  customId: negociacion.ID,
+                  idCompañia: negociacion.COMPANY_ID,
+                  obra: negociacion.UF_CRM_1659706553211,
+                  material: producto.result[0].PRODUCT_NAME,
+                  placa: negociacion.UF_CRM_1659706567283,
+                  origen: negociacion.UF_CRM_1654545135809[0],
+                  destino: negociacion.UF_CRM_1654545151906[0],
+                  standBy: negociacion.UF_CRM_1654545301774,
+                  horasStandBy: negociacion.UF_CRM_1654545361346,
+                  producto: producto.result[0]
+                }
+              );
+            },
+            'error': error => console.log(error)
+          })
+        })
+        console.log('Negociaciones a enviar:', this.negociacionesAEnviar);
+      },
       'error': error => console.log(error)
     })
   }
