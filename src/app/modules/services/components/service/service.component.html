@@ -6,28 +6,40 @@
     class="row d-flex justify-content-around border rounded mx-1"
   >
     <div
-      [ngClass]="
-        path === servicesEnum.volqueta
-          ? 'mt-3 col-12 col-md-4'
-          : path === servicesEnum.grua
-          ? 'mt-3 col-12 col-md-3'
-          : 'mt-3 col-12 col-md-4'
-      "
+      *ngIf="edit"
+      class="mt-3 col-12 col-md-3"
     >
       <label for="exampleDataList1" class="form-label"
+        ><strong>Fecha Programación</strong></label
+      >
+      <input
+        type="date"
+        autocomplete="off"
+        class="form-control"
+        list="datalistOptions1"
+        id="exampleDataList1"
+        name="fecha"
+        formControlName="fecha"
+      />
+    </div>
+
+    <div
+      [ngClass]="edit? 'mt-3 col-12 col-md-3':'mt-3 col-12 col-md-4'"
+    >
+      <label for="exampleDataList2" class="form-label"
         ><strong>Obra</strong></label
       >
       <input
         autocomplete="off"
         class="form-control"
-        list="datalistOptions1"
-        id="exampleDataList1"
+        list="datalistOptions2"
+        id="exampleDataList2"
         name="obra"
         placeholder="Buscar Obra..."
         formControlName="obra"
         (ngModelChange)="negociacionSeleccionada($event)"
       />
-      <datalist id="datalistOptions1">
+      <datalist id="datalistOptions2">
         <option *ngFor="let obra of negociaciones" [ngValue]="obra.TITLE">
           {{ obra.TITLE }}
         </option>
@@ -35,28 +47,22 @@
     </div>
 
     <div
-      [ngClass]="
-        path === servicesEnum.volqueta
-          ? 'mt-3 col-12 col-md-4'
-          : path === servicesEnum.grua
-          ? 'mt-3 col-6 col-md-3'
-          : 'mt-3 col-12 col-md-4'
-      "
+      [ngClass]="edit? 'mt-3 col-12 col-md-3':'mt-3 col-12 col-md-4'"
     >
-      <label for="exampleDataList2" class="form-label"
+      <label for="exampleDataList3" class="form-label"
         ><strong>Material</strong></label
       >
       <input
         autocomplete="off"
         class="form-control"
-        list="datalistOptions2"
-        id="exampleDataList2"
+        list="datalistOptions3"
+        id="exampleDataList3"
         name="material"
         placeholder="Buscar Material..."
         formControlName="material"
         (change)="traerPlacas($event)"
       />
-      <datalist id="datalistOptions2">
+      <datalist id="datalistOptions3">
         <option
           *ngFor="let material of materiales"
           [ngValue]="material.PRODUCT_ID"
@@ -67,77 +73,53 @@
     </div>
 
     <div
-      [ngClass]="
-        path === servicesEnum.volqueta
-          ? 'mt-3 col-12 col-md-4'
-          : path === servicesEnum.grua
-          ? 'mt-3 col-6 col-md-2'
-          : 'mt-3 col-12 col-md-4'
-      "
+      [ngClass]="edit? 'mt-3 col-12 col-md-3':'mt-3 col-12 col-md-4'"
     >
-      <label for="exampleDataList3" class="form-label"
+      <label for="exampleDataList4" class="form-label"
         ><strong>{{nomLabel}}</strong></label
       >
       <input
         autocomplete="off"
         class="form-control"
-        list="datalistOptions3"
-        id="exampleDataList3"
+        list="datalistOptions4"
+        id="exampleDataList4"
         name="placa"
         placeholder={{valuePlaceholder}}
         formControlName="placa"
       />
-      <datalist id="datalistOptions3">
+      <datalist id="datalistOptions4">
         <option *ngFor="let placa of placas" [ngValue]="placa.TITLE">
           {{ placa.TITLE }}
         </option>
       </datalist>
     </div>
 
-    <div class="mt-3 col-6 col-md-2" *ngIf="path == servicesEnum.grua">
-      <label for="exampleFormControlInput1" class="form-label"
-        ><strong>Origen</strong></label
-      >
-      <input
-        type="text"
-        class="form-control"
-        id="exampleFormControlInput1"
-        placeholder="Origen"
-        name="origen"
-        formControlName="origen"
-      />
-    </div>
-
-    <div class="mt-3 col-6 col-md-2" *ngIf="path == servicesEnum.grua">
-      <label for="exampleFormControlInput2" class="form-label"
-        ><strong>Destino</strong></label
-      >
-      <input
-        type="text"
-        class="form-control"
-        id="exampleFormControlInput2"
-        placeholder="Destino"
-        name="destino"
-        formControlName="destino"
-      />
-    </div>
-
-    <div class="row mt-5 justify-content-center">
+    <div *ngIf="!edit" class="row mt-5 justify-content-center">
       <button class="btn btn-outline-danger col-7 col-md-4 mb-3" type="submit">
         Agregar Programación
+      </button>
+    </div>
+    <div *ngIf="edit" class="row mt-5 justify-content-between">
+      <button (click)="cancelarEdicionProgramacion()" class="btn btn-outline-primary col-4 col-md-2 mb-3" type="button">
+        Cancelar
+      </button>
+      <button class="btn btn-outline-danger col-4 col-md-2 mb-3" type="submit">
+        Actualizar
       </button>
     </div>
   </form>
 
   <div>
     <table-services
-      *ngIf="negociacionesAEnviar.length !== 0"
+      *ngIf="negociacionesAEnviar.length !== 0 && !edit"
       (nuevasNegociaciones)="actualizarProgramacionesAEnviar($event)"
+      (editNegociacion)="editarProgramacion($event)"
       [negociaciones]="negociacionesAEnviar"
     ></table-services>
   </div>
 
   <div
+    *ngIf="!edit"
     class="row d-flex mt-5 mb-5 mx-1"
     [ngClass]="
       negociacionesAEnviar.length !== 0

@@ -32,6 +32,10 @@ export class ServiceComponent implements OnInit {
   servicesEnum = ServicesEnum;
   nomLabel = "";
   valuePlaceholder = "";
+  edit: boolean = false;
+  fechaActual = new Date();
+  fechaARecortar = this.fechaActual.toISOString();
+  fechaRecortada = this.fechaARecortar.substring(0, 10);
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -61,30 +65,11 @@ export class ServiceComponent implements OnInit {
       this.valuePlaceholder = "Buscar equipo..."
     }
 
-    if (this.path === ServicesEnum.volqueta) {
-      this.campos = {
-        obra: ['', [Validators.required]],
-        material: ['', [Validators.required]],
-        placa: [''],
-      }
-    }
-
-    if (this.path === ServicesEnum.grua) {
-      this.campos = {
-        obra: ['', [Validators.required]],
-        material: ['', [Validators.required]],
-        placa: [''],
-        origen: ['', [Validators.required]],
-        destino: ['', [Validators.required]],
-      }
-    }
-
-    if (this.path === ServicesEnum.maquina) {
-      this.campos = {
-        obra: ['', [Validators.required]],
-        material: ['', [Validators.required]],
-        placa: [''],
-      }
+    this.campos = {
+      fecha: [this.fechaRecortada],
+      obra: ['', [Validators.required]],
+      material: ['', [Validators.required]],
+      placa: [''],
     }
 
     this.programForm = this.formBuilder.group(this.campos)
@@ -136,21 +121,21 @@ export class ServiceComponent implements OnInit {
   newProgram() {
     if (this.programForm.valid) {
       let program = this.programForm.value;
+      // this.programForm.controls['fecha'].setValue(this.fechaActual.toISOString());
       if (this.productSelected.length > 0) {
         const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
         program.standBy = negociacionFiltrada.standBy;
         program.horasStandBy = negociacionFiltrada.horasStandBy;
       }
       program.idCompañia = this.compañiaSeleccionada;
-      // program.customId = this.negociacionesAEnviar.length + 1;
       program.producto = this.productSelected[0];
 
-      // this.negociacionesAEnviar.push(program);
       this.asignacionesAEnviar.push(program);
       console.log('Asignaciones a enviar:', this.asignacionesAEnviar);
       this.enviarProgramaciones("asignacion");
 
       this.programForm.reset();
+      this.programForm.controls['fecha'].setValue(this.fechaRecortada);
       this.getDataNegotiation();
     } else {
       Swal.fire({
@@ -281,6 +266,7 @@ export class ServiceComponent implements OnInit {
   }
 
   actualizarNegociacionesAEnviar() {
+    console.log('Fecha:', this.fechaActual.toISOString());
     this.negociacionesAEnviar = [];
     const options = {
       filter:
@@ -290,8 +276,8 @@ export class ServiceComponent implements OnInit {
       },
       select:
         [
-          "ID", "COMPANY_ID", "UF_CRM_1659706553211", "UF_CRM_1659706567283", "UF_CRM_1654545135809",
-          "UF_CRM_1654545151906", "UF_CRM_1654545301774", "UF_CRM_1654545361346"
+          "ID", "COMPANY_ID", "UF_CRM_1663861549162", "UF_CRM_1659706553211", "UF_CRM_1659706567283",
+          "UF_CRM_1654545301774", "UF_CRM_1654545361346"
         ]
     };
     this.crm.getDealList(0, options).subscribe({
@@ -301,16 +287,18 @@ export class ServiceComponent implements OnInit {
         negociacines.forEach((negociacion: any) => {
           this.crm.getDealProductList(negociacion.ID).subscribe({
             'next': (producto: any) => {
-              console.log('producto', producto)
+              let fecha = negociacion.UF_CRM_1663861549162;
+              let fechaRecortada = fecha.substring(0, 10).split('-');
+              let fechaAMostrar = `${fechaRecortada[2]}/${fechaRecortada[1]}/${fechaRecortada[0]}`;
               this.negociacionesAEnviar.push(
                 {
                   customId: negociacion.ID,
                   idCompañia: negociacion.COMPANY_ID,
+                  fecha: negociacion.UF_CRM_1663861549162,
+                  fechaAMostrar: fechaAMostrar,
                   obra: negociacion.UF_CRM_1659706553211,
                   material: producto.result[0].PRODUCT_NAME,
                   placa: negociacion.UF_CRM_1659706567283,
-                  origen: negociacion.UF_CRM_1654545135809[0],
-                  destino: negociacion.UF_CRM_1654545151906[0],
                   standBy: negociacion.UF_CRM_1654545301774,
                   horasStandBy: negociacion.UF_CRM_1654545361346,
                   producto: producto.result[0]
@@ -324,6 +312,24 @@ export class ServiceComponent implements OnInit {
       },
       'error': error => console.log(error)
     })
+  }
+
+  editarProgramacion(negociacion: any) {
+    // let fechaActual = this.fechaActual.toISOString();
+    // let fechaRecortada = fechaActual.substring(0, 10);
+    this.edit = true;
+    this.programForm.controls['obra'].disable();
+    this.programForm.controls['fecha'].setValue(this.fechaRecortada);
+    this.programForm.controls['obra'].setValue(negociacion.obra);
+    this.programForm.controls['material'].setValue(negociacion.material);
+    this.programForm.controls['placa'].setValue(negociacion.placa);
+  }
+
+  cancelarEdicionProgramacion() {
+    this.edit = false;
+    this.programForm.controls['obra'].enable();
+    this.programForm.reset();
+    this.programForm.controls['fecha'].setValue(this.fechaRecortada);
   }
 
 }

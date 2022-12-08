@@ -11,6 +11,7 @@ export class TableServicesComponent implements OnInit {
 
   @Input() negociaciones: any[] = [];
   @Output() nuevasNegociaciones = new EventEmitter();
+  @Output() editNegociacion = new EventEmitter();
   path = '';
   servicesEnum = ServicesEnum;
   embudoId = "";
@@ -36,6 +37,10 @@ export class TableServicesComponent implements OnInit {
   eliminarProgramacion(id: number){
     this.negociaciones = this.negociaciones.filter(negociacion => negociacion.customId !== id);
     this.nuevasNegociaciones.emit(this.negociaciones);
+  }
+
+  editarProgramacion(negociacion: any) {
+    this.editNegociacion.emit(negociacion);
   }
 
 }

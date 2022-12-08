@@ -4,27 +4,26 @@
     <table class="table table-striped mb-5 align-middle mx-0 table-hover">
       <thead>
         <tr>
+          <th scope="col">Fecha Programación</th>
           <th scope="col">Obra</th>
           <th scope="col">Material</th>
           <th scope="col">{{campoTabla}}</th>
-          <th scope="col" *ngIf="this.path == servicesEnum.grua">Origen</th>
-          <th scope="col" *ngIf="this.path == servicesEnum.grua">Destino</th>
           <th scope="col">Acción</th>
         </tr>
       </thead>
       <tbody *ngFor="let negociacion of negociaciones">
         <tr>
+          <td class="text-nowrap" scope="row">{{negociacion.fechaAMostrar}}</td>
           <td class="text-nowrap" scope="row">{{negociacion.obra}}</td>
           <td class="text-nowrap">{{negociacion.material}}</td>
           <td class="text-nowrap">{{negociacion.placa}}</td>
-          <td class="text-nowrap" *ngIf="this.path == servicesEnum.grua">{{negociacion.origen}}</td>
-          <td class="text-nowrap" *ngIf="this.path == servicesEnum.grua">{{negociacion.destino}}</td>
-          <td>
-            <div class="row mx-0 px-0">
-              <button (click)="eliminarProgramacion(negociacion.customId)" class="btn btn-outline-danger col-auto">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
+          <td class="d-flex flex-row">
+            <button (click)="editarProgramacion(negociacion)" class="me-2 btn btn-outline-primary col-auto">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button (click)="eliminarProgramacion(negociacion.customId)" class="btn btn-outline-danger col-auto">
+              <i class="bi bi-trash"></i>
+            </button>
           </td>
         </tr>
       </tbody>

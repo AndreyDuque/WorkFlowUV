@@ -47,6 +47,7 @@ export class CrmService {
       TITLE: `${programacion.obra}`,
       CATEGORY_ID: `${embudo}`,
       COMPANY_ID: `${programacion.idCompañia}`,
+      UF_CRM_1663861549162: `${programacion.fecha}`,
       UF_CRM_1659706567283: `${programacion.placa}`,
       UF_CRM_1659706553211: `${programacion.obra}`,
       UF_CRM_1654179740278: [63]
@@ -57,6 +58,7 @@ export class CrmService {
         TITLE: `${programacion.obra}`,
         CATEGORY_ID: `${embudo}`,
         COMPANY_ID: `${programacion.idCompañia}`,
+        UF_CRM_1663861549162: `${programacion.fecha}`,
         UF_CRM_1659706567283: `${programacion.placa}`,
         UF_CRM_1659706553211: `${programacion.obra}`,
         UF_CRM_1654545301774: `${programacion.standBy}`,
@@ -70,10 +72,9 @@ export class CrmService {
         TITLE: `${programacion.obra}`,
         CATEGORY_ID: `${embudo}`,
         COMPANY_ID: `${programacion.idCompañia}`,
+        UF_CRM_1663861549162: `${programacion.fecha}`,
         UF_CRM_1659706567283: `${programacion.placa}`,
         UF_CRM_1659706553211: `${programacion.obra}`,
-        UF_CRM_1654545135809: [`${programacion.origen}`],
-        UF_CRM_1654545151906: [`${programacion.destino}`],
         UF_CRM_1654179740278: [67]
       }
     }
@@ -102,9 +103,7 @@ export class CrmService {
         UF_CRM_1654545301774: `${programationUpdate.standByField}`,
         UF_CRM_1654545361346: `${programationUpdate.horasStandBy}`,
         UF_CRM_1666815383169: `${programationUpdate.state}`,
-        // UF_CRM_1655990970100: // image,
         UF_CRM_1663948727860: image,
-        // UF_CRM_1663029727124: image,
         STAGE_ID: `${programationUpdate.etapa}`,
       }
     }
@@ -112,18 +111,14 @@ export class CrmService {
       fields = {
         UF_CRM_1654626530423: `${programationUpdate.numRecibo}`,
         UF_CRM_1654627437663: `${programationUpdate.cantidad}`,
-        // UF_CRM_1655990970100: // image,
         UF_CRM_1663948727860: image,
-        // UF_CRM_1663029727124: image,
         STAGE_ID: `${programationUpdate.etapa}`,
       }
     }
     if (embudo === "3") {
       fields = {
         UF_CRM_1654626530423: `${programationUpdate.numRecibo}`,
-        // UF_CRM_1655990970100: // image,
         UF_CRM_1663948727860: image,
-        // UF_CRM_1663029727124: image,
         STAGE_ID: `${programationUpdate.etapa}`,
       }
     }
@@ -134,6 +129,14 @@ export class CrmService {
     }
     return this.http.post(`${this.crm}/crm.deal.update`, body);
 
+  }
+
+  actualizarAsignacion(id: string, fields: any) {
+    const body = {
+      id,
+      fields
+    }
+    return this.http.post(`${this.crm}/crm.deal.update`, body);
   }
 
   uploadImage(url: string, file: File) {
