@@ -36,6 +36,8 @@ export class ServiceComponent implements OnInit {
   fechaActual = new Date();
   fechaARecortar = this.fechaActual.toISOString();
   fechaRecortada = this.fechaARecortar.substring(0, 10);
+  updateAsignacion: boolean = false;
+  idAsignacionAActualizar: string = "";
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -53,9 +55,9 @@ export class ServiceComponent implements OnInit {
     this.route.queryParams.subscribe(query => {
       this.codeService = query['service'];
       this.id = query['id'];
-      this.getDataNegotiation();
       this.embudoId = query['embudo'];
     })
+    this.getDataNegotiation();
 
     if (this.embudoId !== "9") {
       this.nomLabel = "Placa";
@@ -86,7 +88,6 @@ export class ServiceComponent implements OnInit {
     };
     this.crm.getDealList(0, options).subscribe({
       'next': (deals: any) => {
-        // this.negociaciones = [];
         if (deals.result) {
           this.negociaciones = deals.result;
           if (deals.total > 50) {
@@ -121,8 +122,7 @@ export class ServiceComponent implements OnInit {
   newProgram() {
     if (this.programForm.valid) {
       let program = this.programForm.value;
-      // this.programForm.controls['fecha'].setValue(this.fechaActual.toISOString());
-      if (this.productSelected.length > 0) {
+      if (this.productSelected.length > 0 && !this.edit) {
         const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
         program.standBy = negociacionFiltrada.standBy;
         program.horasStandBy = negociacionFiltrada.horasStandBy;
@@ -131,8 +131,12 @@ export class ServiceComponent implements OnInit {
       program.producto = this.productSelected[0];
 
       this.asignacionesAEnviar.push(program);
-      console.log('Asignaciones a enviar:', this.asignacionesAEnviar);
-      this.enviarProgramaciones("asignacion");
+      console.log('Asignaciones a enviar:', this.updateAsignacion);
+      if (this.updateAsignacion) {
+        this.actualizarAsignacion(program);
+      } else {
+        this.enviarProgramaciones("asignacion");
+      }
 
       this.programForm.reset();
       this.programForm.controls['fecha'].setValue(this.fechaRecortada);
@@ -266,7 +270,6 @@ export class ServiceComponent implements OnInit {
   }
 
   actualizarNegociacionesAEnviar() {
-    console.log('Fecha:', this.fechaActual.toISOString());
     this.negociacionesAEnviar = [];
     const options = {
       filter:
@@ -304,6 +307,9 @@ export class ServiceComponent implements OnInit {
                   producto: producto.result[0]
                 }
               );
+              this.edit = false;
+              this.programForm.controls['obra'].enable();
+              this.updateAsignacion = false;
             },
             'error': error => console.log(error)
           })
@@ -315,9 +321,22 @@ export class ServiceComponent implements OnInit {
   }
 
   editarProgramacion(negociacion: any) {
-    // let fechaActual = this.fechaActual.toISOString();
-    // let fechaRecortada = fechaActual.substring(0, 10);
+    console.log('Fecha:', this.fechaARecortar)
+    this.crm.getDealProductList(negociacion.customId).subscribe({
+      'next': (products: any) => {
+        this.materiales = products.result;
+        this.productSelected = []
+        this.productSelected = this.materiales.filter(
+          product => product.PRODUCT_NAME === negociacion.material
+        );
+        console.log('Producto a editar:', this.materiales)
+      },
+      'error': error => console.log(error)
+    })
+
     this.edit = true;
+    this.updateAsignacion = true;
+    this.idAsignacionAActualizar = negociacion.customId;
     this.programForm.controls['obra'].disable();
     this.programForm.controls['fecha'].setValue(this.fechaRecortada);
     this.programForm.controls['obra'].setValue(negociacion.obra);
@@ -330,6 +349,38 @@ export class ServiceComponent implements OnInit {
     this.programForm.controls['obra'].enable();
     this.programForm.reset();
     this.programForm.controls['fecha'].setValue(this.fechaRecortada);
+  }
+
+  actualizarAsignacion(negociacion: any) {
+    console.log('Producto seleccionado:', this.productSelected)
+    let fields = {
+      UF_CRM_1663861549162: negociacion.fecha,
+      UF_CRM_1659706553211: negociacion.obra,
+      UF_CRM_1659706567283: negociacion.placa
+    }
+    const row = [
+      {
+        PRODUCT_ID: negociacion.producto.PRODUCT_ID,
+        PRICE: negociacion.producto.PRICE,
+        QUANTITY: negociacion.producto.QUANTITY
+      }
+    ]
+    this.crm.actualizarAsignacion(this.idAsignacionAActualizar, fields).subscribe({
+      'next': asignacion => {
+        console.log('Asignación actualizada:', asignacion);
+        this.crm.agregarProductosANuevaProgramacion(this.idAsignacionAActualizar, row).subscribe({
+          'next': producto => {
+            console.log('Producto asignado:', producto);
+          },
+          'error': error => console.log(error)
+        })
+        setTimeout(() => {
+          this.actualizarNegociacionesAEnviar();
+        }, 1000);
+
+      },
+      'error': error => console.log(error)
+    })
   }
 
 }
