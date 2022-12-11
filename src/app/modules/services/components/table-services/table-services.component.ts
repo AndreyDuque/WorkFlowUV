@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
+import { CrmService } from 'src/app/modules/core/services/crm.service';
 import {ServicesEnum} from "../../../core/utils/services.enum";
 
 @Component({
@@ -16,7 +17,10 @@ export class TableServicesComponent implements OnInit {
   servicesEnum = ServicesEnum;
   embudoId = "";
   campoTabla = "";
-  constructor( private readonly route: ActivatedRoute,) { }
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly crm: CrmService
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(param => {
@@ -35,6 +39,12 @@ export class TableServicesComponent implements OnInit {
   }
 
   eliminarProgramacion(id: number){
+    this.crm.dealDelete(id).subscribe({
+      'next': respuesta => {
+        console.log('Respuesta negociación eliminada:', respuesta);
+      },
+      'error': error => console.log(error)
+    })
     this.negociaciones = this.negociaciones.filter(negociacion => negociacion.customId !== id);
     this.nuevasNegociaciones.emit(this.negociaciones);
   }

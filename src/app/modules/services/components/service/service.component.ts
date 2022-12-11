@@ -57,7 +57,6 @@ export class ServiceComponent implements OnInit {
       this.id = query['id'];
       this.embudoId = query['embudo'];
     })
-    this.getDataNegotiation();
 
     if (this.embudoId !== "9") {
       this.nomLabel = "Placa";
@@ -74,12 +73,10 @@ export class ServiceComponent implements OnInit {
       placa: [''],
     }
 
-    this.programForm = this.formBuilder.group(this.campos)
+    this.programForm = this.formBuilder.group(this.campos);
+    this.getDataNegotiation();
     this.traerPlacas();
     this.actualizarNegociacionesAEnviar();
-    // $('#datalistOptions2').click(function (e) {
-    //   console.log(e)
-    // })
   }
 
   getDataNegotiation() {
@@ -108,9 +105,7 @@ export class ServiceComponent implements OnInit {
           }
 
           if (this.path === ServicesEnum.maquina) {
-            this.negociaciones.forEach(negociacion => {
-              this.insertarStandBy(negociacion)
-            });
+            this.insertarStandBy();
           }
 
         }
@@ -140,7 +135,6 @@ export class ServiceComponent implements OnInit {
 
       this.programForm.reset();
       this.programForm.controls['fecha'].setValue(this.fechaRecortada);
-      this.getDataNegotiation();
     } else {
       Swal.fire({
         icon: 'error',
@@ -259,14 +253,18 @@ export class ServiceComponent implements OnInit {
     }
   }
 
-  insertarStandBy(negociacion: any) {
-    this.crm.getDealForId(negociacion.ID).subscribe({
-      'next': ((negociacionVenta: any) => {
-        negociacion.standBy = negociacionVenta.result.UF_CRM_1654545301774;
-        negociacion.horasStandBy = negociacionVenta.result.UF_CRM_1654545361346;
-      }),
-      'error': error => console.log(error)
-    })
+  insertarStandBy() {
+    setTimeout(() => {
+      this.negociaciones.forEach((negociacion: any) => {
+        this.crm.getDealForId(negociacion.ID).subscribe({
+          'next': ((negociacionVenta: any) => {
+            negociacion.standBy = negociacionVenta.result.UF_CRM_1654545301774;
+            negociacion.horasStandBy = negociacionVenta.result.UF_CRM_1654545361346;
+          }),
+          'error': error => console.log(error)
+        })
+      })
+    }, 2000);
   }
 
   actualizarNegociacionesAEnviar() {
@@ -380,6 +378,23 @@ export class ServiceComponent implements OnInit {
 
       },
       'error': error => console.log(error)
+    })
+  }
+
+  actualizarEstadoDeAsiganciones() {
+    const asignacionesConPlaca = this.negociacionesAEnviar.filter(negocion => negocion.placa !== "");
+    console.log('*******', asignacionesConPlaca)
+    let fields = {
+      UF_CRM_1670719588: 519,
+      STAGE_ID: "C21:WON"
+    }
+    asignacionesConPlaca.forEach(asignacion => {
+      this.crm.actualizarAsignacion(asignacion.customId, fields).subscribe({
+        'next': respuesta => {
+          console.log('Respuesta actualización asignación', respuesta);
+        },
+        'error': error => console.log(error)
+      })
     })
   }
 

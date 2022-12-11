@@ -31,6 +31,12 @@ export class CrmService {
     return this.http.get(`${this.crm}/crm.deal.productrows.get.json`, { params });
   }
 
+  dealDelete(id: number) {
+    const params = new HttpParams()
+      .set('id', `${id}`)
+    return this.http.get(`${this.crm}/crm.deal.delete`, { params })
+  }
+
   getCompanyList(start: number, id: string, options: any) {
     const params = new HttpParams()
       .set('id', `${id}`)
