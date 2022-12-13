@@ -7,7 +7,7 @@
           <span class="input-group-text" id="inputGroup-sizing-default">Servicio</span>
           <select class="form-select" id="inputGroupSelect04" aria-label="Example select with button addon" formControlName="service">
             <!-- <option>Seleccione un servicio</option> -->
-            <option *ngFor="let service of services" [ngValue]="service.code">{{service.value | titlecase}}</option>
+            <option *ngFor="let service of services" [ngValue]="service.code">{{service.value}}</option>
           </select>
           <button class="btn btn-outline-danger" type="submit">Enviar</button>
         </div>

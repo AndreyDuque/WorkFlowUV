@@ -13,9 +13,9 @@ export class ServiceLayoutComponent implements OnInit {
 
   servicesForm!: FormGroup;
   services: any[] = [
-    {value: 'volqueta', code: ServicesEnum.volqueta},
-    {value: 'grúa', code: ServicesEnum.grua},
-    {value: 'maquina', code: ServicesEnum.maquina},
+    {value: 'Volqueta', code: ServicesEnum.volqueta},
+    {value: 'Grúa', code: ServicesEnum.grua},
+    {value: 'Máquina', code: ServicesEnum.maquina},
   ]
 
   constructor(

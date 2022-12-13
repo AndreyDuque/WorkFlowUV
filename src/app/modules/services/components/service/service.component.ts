@@ -37,6 +37,7 @@ export class ServiceComponent implements OnInit {
   fechaRecortada = `${this.arrayFecha[2]}-${this.arrayFecha[1]}-${this.arrayFecha[0]}`;
   updateAsignacion: boolean = false;
   idAsignacionAActualizar: string = "";
+  tituloServicio: string = "";
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -70,6 +71,18 @@ export class ServiceComponent implements OnInit {
       obra: ['', [Validators.required]],
       material: ['', [Validators.required]],
       placa: [''],
+    }
+
+    switch (this.path) {
+      case "volqueta":
+        this.tituloServicio = "Volqueta"
+        break;
+      case "grua":
+        this.tituloServicio = "Grúa"
+        break;
+      case "maquina":
+        this.tituloServicio = "Máquina"
+        break;
     }
 
     this.programForm = this.formBuilder.group(this.campos);
@@ -138,7 +151,7 @@ export class ServiceComponent implements OnInit {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: '¡Porfavor llene todos los campos!',
+        text: '¡Porfavor llene todos los campos requeridos!',
         // footer: '<a href="">Why do I have this issue?</a>'
       })
     }
