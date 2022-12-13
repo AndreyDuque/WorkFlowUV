@@ -2,11 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { CrmService } from "../../../core/services/crm.service";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import * as $ from 'jquery';
 import { ServicesEnum } from "../../../core/utils/services.enum";
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import { logMessages } from "@angular-devkit/build-angular/src/builders/browser-esbuild/esbuild";
 
 @Component({
   selector: 'volqueta',
@@ -34,8 +32,9 @@ export class ServiceComponent implements OnInit {
   valuePlaceholder = "";
   edit: boolean = false;
   fechaActual = new Date();
-  fechaARecortar = this.fechaActual.toISOString();
-  fechaRecortada = this.fechaARecortar.substring(0, 10);
+  fechaARecortar = this.fechaActual.toLocaleDateString();
+  arrayFecha = this.fechaARecortar.substring(0, 10).split('/');
+  fechaRecortada = `${this.arrayFecha[2]}-${this.arrayFecha[1]}-${this.arrayFecha[0]}`;
   updateAsignacion: boolean = false;
   idAsignacionAActualizar: string = "";
 
@@ -67,7 +66,7 @@ export class ServiceComponent implements OnInit {
     }
 
     this.campos = {
-      fecha: [this.fechaRecortada],
+      fecha: [this.fechaRecortada, [Validators.required]],
       obra: ['', [Validators.required]],
       material: ['', [Validators.required]],
       placa: [''],
@@ -81,7 +80,12 @@ export class ServiceComponent implements OnInit {
 
   getDataNegotiation() {
     const options = {
-      filter: { 'STAGE_ID': `WON`, 'UF_CRM_1654179740278': `${this.codeService}` },
+      filter: {
+        'STAGE_ID': `WON`, 'UF_CRM_1654179740278': `${this.codeService}`
+      },
+      select: [
+        'ID', 'TITLE', 'STAGE_ID', 'CATEGORY_ID', 'COMPANY_ID', 'UF_CRM_1654545301774', 'UF_CRM_1654545361346'
+      ]
     };
     this.crm.getDealList(0, options).subscribe({
       'next': (deals: any) => {
@@ -104,10 +108,6 @@ export class ServiceComponent implements OnInit {
             }
           }
 
-          if (this.path === ServicesEnum.maquina) {
-            this.insertarStandBy();
-          }
-
         }
       },
       'error': err => console.log(err)
@@ -117,20 +117,19 @@ export class ServiceComponent implements OnInit {
   newProgram() {
     if (this.programForm.valid) {
       let program = this.programForm.value;
-      if (this.productSelected.length > 0 && !this.edit) {
+      if (this.path === ServicesEnum.maquina && this.productSelected.length > 0 && !this.edit) {
         const negociacionFiltrada = this.negociaciones.filter(negociacion => negociacion.ID === this.productSelected[0].OWNER_ID)[0]
-        program.standBy = negociacionFiltrada.standBy;
-        program.horasStandBy = negociacionFiltrada.horasStandBy;
+        program.standBy = negociacionFiltrada.UF_CRM_1654545301774;
+        program.horasStandBy = negociacionFiltrada.UF_CRM_1654545361346;
       }
       program.idCompañia = this.compañiaSeleccionada;
       program.producto = this.productSelected[0];
 
       this.asignacionesAEnviar.push(program);
-      console.log('Asignaciones a enviar:', this.updateAsignacion);
       if (this.updateAsignacion) {
         this.actualizarAsignacion(program);
       } else {
-        this.enviarProgramaciones("asignacion");
+        this.crearAsignacionEnB24(program);
       }
 
       this.programForm.reset();
@@ -166,7 +165,6 @@ export class ServiceComponent implements OnInit {
       this.productSelected = this.materiales.filter(
         product => product.PRODUCT_NAME === event.target.value
       );
-      console.log('Producto seleccionado:', this.productSelected)
     }
     let options = {
       filter: { 'UF_CRM_1659061343591': `${this.id}` },
@@ -195,76 +193,31 @@ export class ServiceComponent implements OnInit {
     });
   }
 
-  async enviarProgramaciones(embudo: string) {
-    let i = 0;
-    let embudoId = this.embudoId;
-    let negociacionesAEnviar = this.negociacionesAEnviar;
-    console.log('this.negociacionesAEnviar', this.negociacionesAEnviar)
-    let totalNegociaciones = this.negociacionesAEnviar.length;
-    if (embudo === 'asignacion') {
-      totalNegociaciones = this.asignacionesAEnviar.length;
-      i = totalNegociaciones - 1;
-      embudoId = "21";
-      negociacionesAEnviar = this.asignacionesAEnviar;
-    }
-    if (totalNegociaciones !== 0) {
-      while (i < totalNegociaciones) {
-        const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, negociacionesAEnviar[i], `${embudoId}`)
-
-        if (idNegociacion) {
-
-          if (this.path === this.servicesEnum.volqueta || this.path === this.servicesEnum.maquina || this.path === this.servicesEnum.grua) {
-            const row = [
-              {
-                PRODUCT_ID: negociacionesAEnviar[i].producto.PRODUCT_ID,
-                PRICE: negociacionesAEnviar[i].producto.PRICE,
-                QUANTITY: negociacionesAEnviar[i].producto.QUANTITY
-              }
-            ]
-            this.crm.agregarProductosANuevaProgramacion(`${idNegociacion.result}`, row).subscribe({
-              'next': (productResult: any) => {
-                if (productResult && embudo !== 'asignacion') {
-                  this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
-                } else {
-                  this.actualizarNegociacionesAEnviar();
-                }
-              },
-              'error': error => {
-                if (error) this.toastr.error('¡Algo salio mal!', '¡Error!');
-              },
-            })
-          } else {
-            if (embudo !== 'asignacion') {
-              this.toastr.success('¡Nueva programacion ' + idNegociacion.result + ' creada exitosamente!', '¡Bien!');
-            }
+  async crearAsignacionEnB24(asignacion: any) {
+    let embudoId = "21";
+    const idNegociacion: any = await this.crm.enviarProgramacion(`${this.path}`, asignacion, `${embudoId}`);
+    if (idNegociacion) {
+      const row = [
+        {
+          PRODUCT_ID: asignacion.producto.PRODUCT_ID,
+          PRICE: asignacion.producto.PRICE,
+          QUANTITY: asignacion.producto.QUANTITY
+        }
+      ]
+      this.crm.agregarProductosANuevaProgramacion(`${idNegociacion.result}`, row).subscribe({
+        'next': (productResult: any) => {
+          if (productResult) {
+            this.actualizarNegociacionesAEnviar();
           }
-
-        } else {
-          this.toastr.error('¡Algo salio mal!', '¡Error!');
-        }
-        i++;
-        if (embudo === 'asignacion') {
-          break;
-        }
-      }
-    }
-    if (embudo !== 'asignacion') {
-      this.router.navigate(['/services']).then()
-    }
-  }
-
-  insertarStandBy() {
-    setTimeout(() => {
-      this.negociaciones.forEach((negociacion: any) => {
-        this.crm.getDealForId(negociacion.ID).subscribe({
-          'next': ((negociacionVenta: any) => {
-            negociacion.standBy = negociacionVenta.result.UF_CRM_1654545301774;
-            negociacion.horasStandBy = negociacionVenta.result.UF_CRM_1654545361346;
-          }),
-          'error': error => console.log(error)
-        })
+        },
+        'error': error => {
+          if (error) this.toastr.error('¡Algo salio mal!', '¡Error!');
+        },
       })
-    }, 2000);
+
+    } else {
+      this.toastr.error('¡Algo salio mal!', '¡Error!');
+    }
   }
 
   actualizarNegociacionesAEnviar() {
@@ -283,11 +236,14 @@ export class ServiceComponent implements OnInit {
     };
     this.crm.getDealList(0, options).subscribe({
       'next': (negociaciones: any) => {
-        console.log('Negociaciones pendientes de asignación:', negociaciones);
         const negociacines = negociaciones.result;
         negociacines.forEach((negociacion: any) => {
           this.crm.getDealProductList(negociacion.ID).subscribe({
             'next': (producto: any) => {
+              let placa = negociacion.UF_CRM_1659706567283;
+              if (!placa) {
+                placa = "";
+              }
               let fecha = negociacion.UF_CRM_1663861549162;
               let fechaRecortada = fecha.substring(0, 10).split('-');
               let fechaAMostrar = `${fechaRecortada[2]}/${fechaRecortada[1]}/${fechaRecortada[0]}`;
@@ -312,14 +268,12 @@ export class ServiceComponent implements OnInit {
             'error': error => console.log(error)
           })
         })
-        console.log('Negociaciones a enviar:', this.negociacionesAEnviar);
       },
       'error': error => console.log(error)
     })
   }
 
   editarProgramacion(negociacion: any) {
-    console.log('Fecha:', this.fechaARecortar)
     this.crm.getDealProductList(negociacion.customId).subscribe({
       'next': (products: any) => {
         this.materiales = products.result;
@@ -327,7 +281,6 @@ export class ServiceComponent implements OnInit {
         this.productSelected = this.materiales.filter(
           product => product.PRODUCT_NAME === negociacion.material
         );
-        console.log('Producto a editar:', this.materiales)
       },
       'error': error => console.log(error)
     })
@@ -350,7 +303,6 @@ export class ServiceComponent implements OnInit {
   }
 
   actualizarAsignacion(negociacion: any) {
-    console.log('Producto seleccionado:', this.productSelected)
     let fields = {
       UF_CRM_1663861549162: negociacion.fecha,
       UF_CRM_1659706553211: negociacion.obra,
@@ -382,20 +334,37 @@ export class ServiceComponent implements OnInit {
   }
 
   actualizarEstadoDeAsiganciones() {
-    const asignacionesConPlaca = this.negociacionesAEnviar.filter(negocion => negocion.placa !== "");
-    console.log('*******', asignacionesConPlaca)
-    let fields = {
-      UF_CRM_1670719588: 519,
-      STAGE_ID: "C21:WON"
-    }
-    asignacionesConPlaca.forEach(asignacion => {
-      this.crm.actualizarAsignacion(asignacion.customId, fields).subscribe({
-        'next': respuesta => {
-          console.log('Respuesta actualización asignación', respuesta);
-        },
-        'error': error => console.log(error)
+    const asignacionesConPlaca = this.negociacionesAEnviar.filter(negocion => negocion.placa !== null);
+    if (asignacionesConPlaca.length > 0) {
+      let contadorActualizaciones = 0;
+      let fields = {
+        UF_CRM_1670719588: 519,
+        STAGE_ID: "C21:WON"
+      }
+      asignacionesConPlaca.forEach(asignacion => {
+        this.crm.actualizarAsignacion(asignacion.customId, fields).subscribe({
+          'next': respuesta => {
+            console.log('Respuesta actualización asignación', respuesta);
+            this.toastr.success('¡Programacion ' + asignacion.customId + ' creada exitosamente!', '¡Bien!');
+            contadorActualizaciones++;
+            if (contadorActualizaciones === asignacionesConPlaca.length) {
+              this.router.navigate(['/services']).then();
+            }
+          },
+          'error': error => {
+            if (error) this.toastr.error('¡Programacion ' + asignacion.customId + ' Algo salio mal!', '¡Error!');
+            console.log(error);
+          },
+        })
       })
-    })
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: '¡Porfavor llene todos los campos de al menos una programación!',
+        // footer: '<a href="">Why do I have this issue?</a>'
+      })
+    }
   }
 
 }
