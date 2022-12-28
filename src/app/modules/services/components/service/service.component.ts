@@ -365,7 +365,7 @@ export class ServiceComponent implements OnInit {
             }
           },
           'error': error => {
-            if (error) this.toastr.error('¡Programacion ' + asignacion.customId + ' Algo salio mal!', '¡Error!');
+            // if (error) this.toastr.error('¡Programacion ' + asignacion.customId + ' Algo salio mal!', '¡Error!');
             console.log(error);
           },
         })
