@@ -360,9 +360,9 @@ export class ServiceComponent implements OnInit {
             console.log('Respuesta actualización asignación', respuesta);
             this.toastr.success('¡Programacion ' + asignacion.customId + ' creada exitosamente!', '¡Bien!');
             contadorActualizaciones++;
-            if (contadorActualizaciones === asignacionesConPlaca.length) {
-              this.router.navigate(['/services']).then();
-            }
+            // if (contadorActualizaciones === asignacionesConPlaca.length) {
+            //   this.router.navigate(['/services']).then();
+            // }
           },
           'error': error => {
             // if (error) this.toastr.error('¡Programacion ' + asignacion.customId + ' Algo salio mal!', '¡Error!');
@@ -370,6 +370,7 @@ export class ServiceComponent implements OnInit {
           },
         })
       })
+      this.router.navigate(['/services']).then();
     } else {
       Swal.fire({
         icon: 'error',
