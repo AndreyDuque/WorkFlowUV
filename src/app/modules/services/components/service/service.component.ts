@@ -38,6 +38,8 @@ export class ServiceComponent implements OnInit {
   updateAsignacion: boolean = false;
   idAsignacionAActualizar: string = "";
   tituloServicio: string = "";
+  contadorActualizaciones: number = 0;
+  asignacionesConPlaca: any[] = [];
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -347,30 +349,36 @@ export class ServiceComponent implements OnInit {
   }
 
   actualizarEstadoDeAsiganciones() {
-    const asignacionesConPlaca = this.negociacionesAEnviar.filter(negocion => negocion.placa !== null);
-    if (asignacionesConPlaca.length > 0) {
-      let contadorActualizaciones = 0;
+    if (this.contadorActualizaciones === 0) {
+      this.asignacionesConPlaca = this.negociacionesAEnviar.filter(negocion => negocion.placa !== null);
+    }
+    if (this.asignacionesConPlaca.length > 0) {
       let fields = {
         UF_CRM_1670719588: 519,
         STAGE_ID: "C21:WON"
       }
-      asignacionesConPlaca.forEach(asignacion => {
-        this.crm.actualizarAsignacion(asignacion.customId, fields).subscribe({
-          'next': respuesta => {
-            console.log('Respuesta actualización asignación', respuesta);
-            this.toastr.success('¡Programacion ' + asignacion.customId + ' creada exitosamente!', '¡Bien!');
-            contadorActualizaciones++;
-            // if (contadorActualizaciones === asignacionesConPlaca.length) {
-            //   this.router.navigate(['/services']).then();
-            // }
-          },
-          'error': error => {
-            // if (error) this.toastr.error('¡Programacion ' + asignacion.customId + ' Algo salio mal!', '¡Error!');
-            console.log(error);
-          },
-        })
+      this.crm.actualizarAsignacion(this.asignacionesConPlaca[this.contadorActualizaciones].customId, fields).subscribe({
+        'next': respuesta => {
+          console.log('Respuesta actualización asignación', respuesta);
+          this.toastr.success('¡Programacion ' + this.asignacionesConPlaca[this.contadorActualizaciones].customId + ' creada exitosamente!', '¡Bien!');
+          this.contadorActualizaciones++;
+          if (this.contadorActualizaciones < this.asignacionesConPlaca.length) {
+            this.actualizarEstadoDeAsiganciones();
+          } else {
+            this.router.navigate(['/services']).then();
+          }
+        },
+        'error': error => {
+          console.log(error);
+          if (error) this.toastr.error('¡Programacion ' + this.asignacionesConPlaca[this.contadorActualizaciones].customId + ' Algo salio mal!', '¡Error!');
+          this.contadorActualizaciones++;
+          if (this.contadorActualizaciones < this.asignacionesConPlaca.length) {
+            this.actualizarEstadoDeAsiganciones();
+          } else {
+            this.router.navigate(['/services']).then();
+          }
+        },
       })
-      this.router.navigate(['/services']).then();
     } else {
       Swal.fire({
         icon: 'error',
