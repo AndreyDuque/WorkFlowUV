@@ -33,13 +33,18 @@ export class ResultSearchComponent implements OnInit {
         'UF_CRM_1659706567283': `${this.placa}`,
         'STAGE_ID': ['C7:NEW', 'C3:NEW', 'C9:NEW']
       },
+      select: [
+        'ID', 'UF_CRM_1663861549162', 'TITLE', 'CATEGORY_ID', 'PRODUCT_NAME'
+      ]
     };
     this.crm.getDealList(this.start, options).subscribe({
       'next': (deals: any) => {
         if (deals.result) {
+          console.log('Negociaciones:', deals.result)
           this.negociaciones = deals.result;
           this.negociaciones.forEach(negociacion => {
-            this.getProduct(negociacion)
+            negociacion.UF_CRM_1663861549162 = negociacion.UF_CRM_1663861549162.substring(0,10);
+            this.getProduct(negociacion);
           })
           if (this.negociaciones.length == 0) {
             Swal.fire({

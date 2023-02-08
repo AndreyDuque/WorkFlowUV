@@ -5,6 +5,7 @@
       <thead>
         <tr>
           <th scope="col">ID</th>
+          <th scope="col">Fecha Programación</th>
           <th scope="col">Programaciones</th>
           <th scope="col">Material</th>
           <th scope="col">Embudo</th>
@@ -13,6 +14,9 @@
       <tbody>
         <tr *ngFor="let programmation of negociaciones">
           <th scope="row">{{ programmation.ID }}</th>
+          <td class="text-nowrap text-center">
+            {{ programmation.UF_CRM_1663861549162 }}
+          </td>
           <td class="text-nowrap">
             <a
               [routerLink]="['/programming/negotiation-in-progress']"
