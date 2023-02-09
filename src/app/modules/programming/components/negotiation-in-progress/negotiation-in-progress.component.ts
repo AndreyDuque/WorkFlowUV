@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
 import { CrmService } from 'src/app/modules/core/services/crm.service';
 import { ToastrService } from 'ngx-toastr';
@@ -30,6 +30,10 @@ export class NegotiationInProgressComponent implements OnInit {
   valorStandBy: boolean = true;
   programmingTitle: string = "";
   setProduct: boolean = true;
+  bills: boolean = false;
+  empleados: any[] = [];
+  gastos: any[] = [];
+  idEmpleadoSeleccionado: string = "";
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -61,19 +65,32 @@ export class NegotiationInProgressComponent implements OnInit {
     if (this.embudo === "7") {
       this.campos = {
         fotoRecibo: ['', [Validators.required]],
+        archivoEscombrera: ['', [Validators.required]],
+        archivoGasto: ['', [Validators.required]],
         numRecibo: ['', [Validators.required]],
-        cantidad: ['', [Validators.required]]
+        cantidad: ['', [Validators.required]],
+        gastos: new FormControl(false),
+        anticipo: [''],
+        valorFactura: [''],
+        empleado: [''],
       }
     }
     if (this.embudo === "3") {
       this.campos = {
         fotoRecibo: ['', [Validators.required]],
-        numRecibo: ['', [Validators.required]]
+        archivoGasto: ['', [Validators.required]],
+        numRecibo: ['', [Validators.required]],
+        gastos: new FormControl(false),
+        anticipo: [''],
+        valorFactura: [''],
+        empleado: [''],
       }
     }
 
     this.updateProgramForm = this.formBuilder.group(this.campos);
     this.definirStandBy();
+    this.enableExpenses();
+    this.consultarCampos();
 
     this.crm.getDealProductList(this.idProgrammation).subscribe((valueProducts: any) => {
       if (valueProducts) {
@@ -108,7 +125,8 @@ export class NegotiationInProgressComponent implements OnInit {
         if (value) {
           this.router.navigate(['/programming']).then();
           for (let j = 0; j < this.files.length; j++) {
-            const file = this.newFile(this.files[j], this.updateProgramForm.value.numRecibo);
+            console.log('Archivos:', this.files[j])
+            const file = this.newFile(this.files[j], `${this.files[j].nombre} - ${this.updateProgramForm.value.numRecibo}`);
             this.crm.uploadImage(value?.result.uploadUrl, file).subscribe((value2: any) => {
               if (value2) {
                 this.crm.showImage(Number(value2.result.ID)).subscribe((value3: any) => {
@@ -117,6 +135,7 @@ export class NegotiationInProgressComponent implements OnInit {
                     this.contador += 1;
                     if (this.contador == this.files.length) {
                       this.programationUpdate = this.updateProgramForm.value;
+                      console.log('Programación:', this.programationUpdate);
                       this.programationUpdate['etapa'] = `C${this.embudo}:PREPARATION`;
                       this.programationUpdate['horasStandBy'] = this.horasStandBy;
 
@@ -182,8 +201,34 @@ export class NegotiationInProgressComponent implements OnInit {
 
   uploadFileEvt(imgFile: any) {
     const filesLoad = imgFile.target.files;
+    console.log('Archivo Recibo:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
+      // filesLoad[i].name = 'recibo';
+      filesLoad[i].nombre = 'Recibo';
       this.files.push(filesLoad[i]);
+      console.log('Recibo', this.files[i])
+    }
+  }
+
+  cargarArchivoEscombrera(imgFile: any) {
+    const filesLoad = imgFile.target.files;
+    console.log('Archivo Escombrera:', filesLoad)
+    for (let i = 0; i < filesLoad.length; i++) {
+      // filesLoad[i].name = 'recibo';
+      filesLoad[i].nombre = 'Escombrera';
+      this.files.push(filesLoad[i]);
+      console.log('Escombrera', this.files)
+    }
+  }
+
+  cargarArchivoGastos(imgFile: any) {
+    const filesLoad = imgFile.target.files;
+    console.log('Archivo Gastos:', filesLoad)
+    for (let i = 0; i < filesLoad.length; i++) {
+      // filesLoad[i].name = 'recibo';
+      filesLoad[i].nombre = 'Gastos';
+      this.files.push(filesLoad[i]);
+      console.log('Gastos', this.files)
     }
   }
 
@@ -248,6 +293,25 @@ export class NegotiationInProgressComponent implements OnInit {
 
           this.programmingTitle = deal.result.UF_CRM_1659706553211;
         }
+      }),
+      'error': error => console.log(error)
+    })
+  }
+
+  enableExpenses() {
+    this.updateProgramForm.valueChanges.subscribe(form => {
+      this.bills = form.gastos;
+      console.log(this.bills)
+    })
+  }
+
+  consultarCampos() {
+    this.crm.getCamposNegociacion().subscribe({
+      'next': ((camposNegociacion: any) => {
+        this.empleados = camposNegociacion.result.UF_CRM_1668523347831.items;
+        this.gastos = camposNegociacion.result.UF_CRM_62CDABE0392BD.items;
+        console.log('Empleados:', this.empleados)
+        console.log('Gastos:', this.gastos)
       }),
       'error': error => console.log(error)
     })

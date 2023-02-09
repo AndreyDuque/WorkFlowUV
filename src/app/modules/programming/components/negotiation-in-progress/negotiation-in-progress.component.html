@@ -9,7 +9,7 @@
         (ngSubmit)="saveProgramationUpdate()"
       >
         <label class="form-label" for="image"
-          ><strong> Foto de Recibo</strong></label
+          ><strong>Foto de Recibo</strong></label
         >
         <div class="mb-3">
           <input
@@ -21,6 +21,23 @@
             id="image"
             (change)="uploadFileEvt($event)"
           />
+        </div>
+
+        <div *ngIf="embudo === '7'">
+          <label class="form-label" for="image"
+            ><strong>Constancia Escombrera</strong></label
+          >
+          <div class="mb-3">
+            <input
+              type="file"
+              multiple="true"
+              name="archivoEscombrera"
+              formControlName="archivoEscombrera"
+              class="form-control"
+              id="image"
+              (change)="cargarArchivoEscombrera($event)"
+            />
+          </div>
         </div>
 
         <div class="input-group mt-3">
@@ -37,27 +54,18 @@
           />
         </div>
 
-        <div
-          *ngIf="embudo === '9'"
-          class="input-group mt-3"
-        >
+        <div *ngIf="embudo === '9'" class="input-group mt-3">
           <label class="input-group-text" for="inputGroupSelect01"
             >Stand By</label
           >
-          <select
-            class="form-select"
-            formControlName="standByField"
-          >
+          <select class="form-select" formControlName="standByField">
             <option value="81">Si</option>
             <option value="83">No</option>
             <option value="87">N/A</option>
           </select>
         </div>
 
-        <div
-          *ngIf="embudo === '9'"
-          class="mt-3 border rounded p-2"
-        >
+        <div *ngIf="embudo === '9'" class="mt-3 border rounded p-2">
           <label>Horas de Stand By:</label>
           <span> {{ horasStandBy }}</span>
         </div>
@@ -123,26 +131,90 @@
         </div>
         <span
           *ngIf="
-            embudo === '9' && cantidadHoras <= horasStandBy && horasStandBy > 0 && valorStandBy
+            embudo === '9' &&
+            cantidadHoras <= horasStandBy &&
+            horasStandBy > 0 &&
+            valorStandBy
           "
           class="text-secondary"
           >Se aplicaron las horas de Stand By</span
         >
 
-        <div
-          *ngIf="embudo === '9'"
-          class="input-group mt-3"
-        >
+        <div *ngIf="embudo === '9'" class="input-group mt-3">
           <label class="input-group-text" for="inputGroupSelect01"
             >Estado</label
           >
-          <select
-            class="form-select"
-            formControlName="state"
-          >
+          <select class="form-select" formControlName="state">
             <option value="299">Activa</option>
             <option value="301">Finalizada</option>
           </select>
+        </div>
+
+        <div class="form-check mt-3" *ngIf="embudo !== '9'">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            formControlName="gastos"
+            id="flexCheckDefault"
+          />
+          <label class="form-check-label" for="flexCheckDefault">
+            Reportar Gastos
+          </label>
+        </div>
+
+        <div *ngIf="bills">
+          <div class="input-group mt-3">
+            <span class="input-group-text" id="basic-addon4">Anticipo</span>
+            <input
+              type="number"
+              name="anticipo"
+              formControlName="anticipo"
+              class="form-control"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+          <div class="input-group mt-3">
+            <span class="input-group-text" id="basic-addon4"
+              >Valor De La Factura (Sin IVA)</span
+            >
+            <input
+              type="number"
+              name="valorFactura"
+              formControlName="valorFactura"
+              class="form-control"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+          <div class="form-floating mt-3">
+            <select
+              class="form-select"
+              id="floatingSelect"
+              aria-label="Floating label select example"
+              formControlName="empleado"
+            >
+              <option value="">-- Seleccione Un Responsable --</option>
+              <option *ngFor="let empleado of empleados" [value]="empleado.ID">
+                {{ empleado.VALUE }}
+              </option>
+            </select>
+            <label for="floatingSelect">Responsable</label>
+          </div>
+          <label class="form-label mt-3" for="image"
+            ><strong>Constancia Gastos</strong></label
+          >
+          <div class="mb-3">
+            <input
+              type="file"
+              multiple="true"
+              name="archivoGasto"
+              formControlName="archivoGasto"
+              class="form-control"
+              id="image"
+              (change)="cargarArchivoGastos($event)"
+            />
+          </div>
         </div>
 
         <div class="row justify-content-between mt-5 mb-5 mx-1">

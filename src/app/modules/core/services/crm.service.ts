@@ -119,6 +119,9 @@ export class CrmService {
         UF_CRM_1654627437663: `${programationUpdate.cantidad}`,
         UF_CRM_1663948727860: image,
         STAGE_ID: `${programationUpdate.etapa}`,
+        UF_CRM_1669036926140: `${programationUpdate.anticipo}`,
+        UF_CRM_62CD97F8D7809: `${programationUpdate.valorFactura}`,
+        UF_CRM_1668523347831: `${programationUpdate.empleado}`,
       }
     }
     if (embudo === "3") {
@@ -126,6 +129,9 @@ export class CrmService {
         UF_CRM_1654626530423: `${programationUpdate.numRecibo}`,
         UF_CRM_1663948727860: image,
         STAGE_ID: `${programationUpdate.etapa}`,
+        UF_CRM_1669036926140: `${programationUpdate.anticipo}`,
+        UF_CRM_62CD97F8D7809: `${programationUpdate.valorFactura}`,
+        UF_CRM_1668523347831: `${programationUpdate.empleado}`,
       }
     }
 
@@ -159,6 +165,10 @@ export class CrmService {
   showImage(id: number) {
     let body = { id: id }
     return this.http.post(`${this.crm}/disk.file.getExternalLink`, body);
+  }
+
+  getCamposNegociacion() {
+    return this.http.get(`${this.crm}/crm.deal.fields`);
   }
 
 }
