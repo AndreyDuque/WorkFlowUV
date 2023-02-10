@@ -72,6 +72,7 @@ export class NegotiationInProgressComponent implements OnInit {
         gastos: new FormControl(false),
         anticipo: [''],
         valorFactura: [''],
+        concepto: [''],
         empleado: [''],
       }
     }
@@ -83,6 +84,7 @@ export class NegotiationInProgressComponent implements OnInit {
         gastos: new FormControl(false),
         anticipo: [''],
         valorFactura: [''],
+        concepto: [''],
         empleado: [''],
       }
     }
@@ -203,7 +205,6 @@ export class NegotiationInProgressComponent implements OnInit {
     const filesLoad = imgFile.target.files;
     console.log('Archivo Recibo:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
-      // filesLoad[i].name = 'recibo';
       filesLoad[i].nombre = 'Recibo';
       this.files.push(filesLoad[i]);
       console.log('Recibo', this.files[i])
@@ -214,7 +215,6 @@ export class NegotiationInProgressComponent implements OnInit {
     const filesLoad = imgFile.target.files;
     console.log('Archivo Escombrera:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
-      // filesLoad[i].name = 'recibo';
       filesLoad[i].nombre = 'Escombrera';
       this.files.push(filesLoad[i]);
       console.log('Escombrera', this.files)
@@ -225,7 +225,6 @@ export class NegotiationInProgressComponent implements OnInit {
     const filesLoad = imgFile.target.files;
     console.log('Archivo Gastos:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
-      // filesLoad[i].name = 'recibo';
       filesLoad[i].nombre = 'Gastos';
       this.files.push(filesLoad[i]);
       console.log('Gastos', this.files)
@@ -301,7 +300,6 @@ export class NegotiationInProgressComponent implements OnInit {
   enableExpenses() {
     this.updateProgramForm.valueChanges.subscribe(form => {
       this.bills = form.gastos;
-      console.log(this.bills)
     })
   }
 

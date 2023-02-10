@@ -121,6 +121,7 @@ export class CrmService {
         STAGE_ID: `${programationUpdate.etapa}`,
         UF_CRM_1669036926140: `${programationUpdate.anticipo}`,
         UF_CRM_62CD97F8D7809: `${programationUpdate.valorFactura}`,
+        UF_CRM_62CDABE0392BD: programationUpdate.concepto,
         UF_CRM_1668523347831: `${programationUpdate.empleado}`,
       }
     }
@@ -131,6 +132,7 @@ export class CrmService {
         STAGE_ID: `${programationUpdate.etapa}`,
         UF_CRM_1669036926140: `${programationUpdate.anticipo}`,
         UF_CRM_62CD97F8D7809: `${programationUpdate.valorFactura}`,
+        UF_CRM_62CDABE0392BD: programationUpdate.concepto,
         UF_CRM_1668523347831: `${programationUpdate.empleado}`,
       }
     }

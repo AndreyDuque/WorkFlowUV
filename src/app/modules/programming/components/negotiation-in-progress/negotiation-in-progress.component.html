@@ -187,6 +187,18 @@
               aria-describedby="basic-addon1"
             />
           </div>
+          <div class="mt-3">
+            <label><strong>Conseptos Gasto</strong></label>
+            <ng-select
+              [multiple]="true"
+              placeholder="Seleccione los conceptos"
+              formControlName="concepto"
+            >
+              <ng-option *ngFor="let gasto of gastos" [value]="gasto.ID">
+                {{ gasto.VALUE }}
+              </ng-option>
+            </ng-select>
+          </div>
           <div class="form-floating mt-3">
             <select
               class="form-select"
