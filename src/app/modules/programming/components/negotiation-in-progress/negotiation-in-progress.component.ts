@@ -34,6 +34,9 @@ export class NegotiationInProgressComponent implements OnInit {
   empleados: any[] = [];
   gastos: any[] = [];
   idEmpleadoSeleccionado: string = "";
+  material: string = "";
+  campoEscombrera: boolean = false;
+  validarFormGastos: boolean = true;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -65,8 +68,8 @@ export class NegotiationInProgressComponent implements OnInit {
     if (this.embudo === "7") {
       this.campos = {
         fotoRecibo: ['', [Validators.required]],
-        archivoEscombrera: ['', [Validators.required]],
-        archivoGasto: ['', [Validators.required]],
+        archivoEscombrera: [''],
+        archivoGasto: [''],
         numRecibo: ['', [Validators.required]],
         cantidad: ['', [Validators.required]],
         gastos: new FormControl(false),
@@ -79,7 +82,7 @@ export class NegotiationInProgressComponent implements OnInit {
     if (this.embudo === "3") {
       this.campos = {
         fotoRecibo: ['', [Validators.required]],
-        archivoGasto: ['', [Validators.required]],
+        archivoGasto: [''],
         numRecibo: ['', [Validators.required]],
         gastos: new FormControl(false),
         anticipo: [''],
@@ -97,6 +100,23 @@ export class NegotiationInProgressComponent implements OnInit {
     this.crm.getDealProductList(this.idProgrammation).subscribe((valueProducts: any) => {
       if (valueProducts) {
         this.rowsProducts.push(valueProducts.result[0]);
+        console.log('Productos:', this.rowsProducts)
+        this.material = this.rowsProducts[0].PRODUCT_NAME;
+        let arrMaterial = this.material.split(' ');
+        console.log('Material descompuesto:', arrMaterial)
+        if (arrMaterial[0] === 'TIERRA' || arrMaterial[0] === 'ESCOMBRO' || arrMaterial[0] === 'ESCOMBROS') {
+          this.campoEscombrera = true;
+          this.updateProgramForm.valueChanges.subscribe(form => {
+            if (this.campoEscombrera) {
+              if (form.archivoEscombrera) {
+                this.validarFormGastos = true;
+              } else {
+                this.validarFormGastos = false;
+              }
+              this.enableExpenses();
+            }
+          })
+        }
       }
     });
 
@@ -122,7 +142,7 @@ export class NegotiationInProgressComponent implements OnInit {
   }
 
   saveProgramationUpdate() {
-    if (this.updateProgramForm.valid) {
+    if (this.updateProgramForm.valid && this.validarFormGastos) {
       this.crm.uploadImage2().subscribe((value: any) => {
         if (value) {
           this.router.navigate(['/programming']).then();
@@ -300,6 +320,20 @@ export class NegotiationInProgressComponent implements OnInit {
   enableExpenses() {
     this.updateProgramForm.valueChanges.subscribe(form => {
       this.bills = form.gastos;
+      if (this.bills) {
+        if (form.anticipo && form.valorFactura && form.concepto && form.empleado && form.archivoGasto && form.concepto.length > 0) {
+          this.validarFormGastos = true;
+        } else {
+          this.validarFormGastos = false;
+        }
+      } else {
+        this.validarFormGastos = true;
+        this.updateProgramForm.value.anticipo = "";
+        this.updateProgramForm.value.valorFactura = "";
+        this.updateProgramForm.value.concepto = [];
+        this.updateProgramForm.value.empleado = "";
+        this.updateProgramForm.value.archivoGasto = "";
+      }
     })
   }
 
@@ -313,6 +347,12 @@ export class NegotiationInProgressComponent implements OnInit {
       }),
       'error': error => console.log(error)
     })
+  }
+
+  validaciones() {
+    if (this.bills) {
+      this.updateProgramForm.value.anticipo
+    }
   }
 
 }
