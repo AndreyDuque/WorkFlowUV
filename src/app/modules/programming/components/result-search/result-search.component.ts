@@ -34,7 +34,7 @@ export class ResultSearchComponent implements OnInit {
         'STAGE_ID': ['C7:NEW', 'C3:NEW', 'C9:NEW']
       },
       select: [
-        'ID', 'UF_CRM_1663861549162', 'TITLE', 'CATEGORY_ID', 'PRODUCT_NAME'
+        'ID', 'UF_CRM_1663861549162', 'TITLE', 'CATEGORY_ID', 'PRODUCT_NAME', 'UF_CRM_1659706553211'
       ]
     };
     this.crm.getDealList(this.start, options).subscribe({
