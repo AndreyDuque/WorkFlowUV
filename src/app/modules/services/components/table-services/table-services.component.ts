@@ -41,7 +41,6 @@ export class TableServicesComponent implements OnInit {
   eliminarProgramacion(id: number){
     this.crm.dealDelete(id).subscribe({
       'next': respuesta => {
-        console.log('Respuesta negociación eliminada:', respuesta);
       },
       'error': error => console.log(error)
     })

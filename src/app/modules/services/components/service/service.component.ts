@@ -332,10 +332,8 @@ export class ServiceComponent implements OnInit {
     ]
     this.crm.actualizarAsignacion(this.idAsignacionAActualizar, fields).subscribe({
       'next': asignacion => {
-        console.log('Asignación actualizada:', asignacion);
         this.crm.agregarProductosANuevaProgramacion(this.idAsignacionAActualizar, row).subscribe({
           'next': producto => {
-            console.log('Producto asignado:', producto);
           },
           'error': error => console.log(error)
         })

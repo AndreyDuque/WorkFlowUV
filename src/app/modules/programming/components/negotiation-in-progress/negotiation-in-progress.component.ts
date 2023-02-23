@@ -100,15 +100,13 @@ export class NegotiationInProgressComponent implements OnInit {
     this.crm.getDealProductList(this.idProgrammation).subscribe((valueProducts: any) => {
       if (valueProducts) {
         this.rowsProducts.push(valueProducts.result[0]);
-        console.log('Productos:', this.rowsProducts)
         this.material = this.rowsProducts[0].PRODUCT_NAME;
         let arrMaterial = this.material.split(' ');
-        console.log('Material descompuesto:', arrMaterial)
-        if (arrMaterial[0] === 'TIERRA' || arrMaterial[0] === 'ESCOMBRO' || arrMaterial[0] === 'ESCOMBROS') {
+        if (arrMaterial[0] === 'TIERRA' || arrMaterial[0] === 'ESCOMBRO' || arrMaterial[0] === 'ESCOMBROS' || arrMaterial[0] === 'PALERO' || arrMaterial[0] === 'PALEROS') {
           this.campoEscombrera = true;
           this.updateProgramForm.valueChanges.subscribe(form => {
             if (this.campoEscombrera) {
-              if (form.archivoEscombrera) {
+              if (form.archivoEscombrera !== '') {
                 this.validarFormGastos = true;
               } else {
                 this.validarFormGastos = false;
@@ -147,7 +145,6 @@ export class NegotiationInProgressComponent implements OnInit {
         if (value) {
           this.router.navigate(['/programming']).then();
           for (let j = 0; j < this.files.length; j++) {
-            console.log('Archivos:', this.files[j])
             const file = this.newFile(this.files[j], `${this.files[j].nombre} - ${this.updateProgramForm.value.numRecibo}`);
             this.crm.uploadImage(value?.result.uploadUrl, file).subscribe((value2: any) => {
               if (value2) {
@@ -157,7 +154,6 @@ export class NegotiationInProgressComponent implements OnInit {
                     this.contador += 1;
                     if (this.contador == this.files.length) {
                       this.programationUpdate = this.updateProgramForm.value;
-                      console.log('Programación:', this.programationUpdate);
                       this.programationUpdate['etapa'] = `C${this.embudo}:PREPARATION`;
                       this.programationUpdate['horasStandBy'] = this.horasStandBy;
 
@@ -223,31 +219,25 @@ export class NegotiationInProgressComponent implements OnInit {
 
   uploadFileEvt(imgFile: any) {
     const filesLoad = imgFile.target.files;
-    console.log('Archivo Recibo:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
       filesLoad[i].nombre = 'Recibo';
       this.files.push(filesLoad[i]);
-      console.log('Recibo', this.files[i])
     }
   }
 
   cargarArchivoEscombrera(imgFile: any) {
     const filesLoad = imgFile.target.files;
-    console.log('Archivo Escombrera:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
       filesLoad[i].nombre = 'Escombrera';
       this.files.push(filesLoad[i]);
-      console.log('Escombrera', this.files)
     }
   }
 
   cargarArchivoGastos(imgFile: any) {
     const filesLoad = imgFile.target.files;
-    console.log('Archivo Gastos:', filesLoad)
     for (let i = 0; i < filesLoad.length; i++) {
       filesLoad[i].nombre = 'Gastos';
       this.files.push(filesLoad[i]);
-      console.log('Gastos', this.files)
     }
   }
 
@@ -319,6 +309,14 @@ export class NegotiationInProgressComponent implements OnInit {
 
   enableExpenses() {
     this.updateProgramForm.valueChanges.subscribe(form => {
+      if (this.campoEscombrera) {
+        if (form.archivoEscombrera !== '') {
+          this.validarFormGastos = true;
+        } else {
+          this.validarFormGastos = false;
+        }
+      }
+
       this.bills = form.gastos;
       if (this.bills) {
         if (form.anticipo && form.valorFactura && form.concepto && form.empleado && form.archivoGasto && form.concepto.length > 0) {
@@ -327,12 +325,14 @@ export class NegotiationInProgressComponent implements OnInit {
           this.validarFormGastos = false;
         }
       } else {
-        this.validarFormGastos = true;
         this.updateProgramForm.value.anticipo = "";
         this.updateProgramForm.value.valorFactura = "";
         this.updateProgramForm.value.concepto = [];
         this.updateProgramForm.value.empleado = "";
         this.updateProgramForm.value.archivoGasto = "";
+        if (this.validarFormGastos) {
+          this.validarFormGastos = true;
+        }
       }
     })
   }
@@ -342,8 +342,6 @@ export class NegotiationInProgressComponent implements OnInit {
       'next': ((camposNegociacion: any) => {
         this.empleados = camposNegociacion.result.UF_CRM_1668523347831.items;
         this.gastos = camposNegociacion.result.UF_CRM_62CDABE0392BD.items;
-        console.log('Empleados:', this.empleados)
-        console.log('Gastos:', this.gastos)
       }),
       'error': error => console.log(error)
     })

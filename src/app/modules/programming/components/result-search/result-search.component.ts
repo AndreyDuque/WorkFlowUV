@@ -40,7 +40,6 @@ export class ResultSearchComponent implements OnInit {
     this.crm.getDealList(this.start, options).subscribe({
       'next': (deals: any) => {
         if (deals.result) {
-          console.log('Negociaciones:', deals.result)
           this.negociaciones = deals.result;
           this.negociaciones.forEach(negociacion => {
             negociacion.UF_CRM_1663861549162 = negociacion.UF_CRM_1663861549162.substring(0,10);
