@@ -319,7 +319,7 @@ export class NegotiationInProgressComponent implements OnInit {
 
       this.bills = form.gastos;
       if (this.bills) {
-        if (form.anticipo && form.valorFactura && form.concepto && form.empleado && form.archivoGasto && form.concepto.length > 0) {
+        if ((form.anticipo || form.anticipo === 0) && form.valorFactura && form.concepto && form.empleado && form.archivoGasto && form.concepto.length > 0) {
           this.validarFormGastos = true;
         } else {
           this.validarFormGastos = false;
