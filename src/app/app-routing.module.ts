@@ -16,14 +16,21 @@ const routes: Routes = [
       {
         path: 'programming',
         loadChildren: () => import('./modules/programming/programming.module').then(module => module.ProgrammingModule)
-      }, {
+      },
+      {
         path: 'services',
         loadChildren: () => import('./modules/services/services.module').then(module => module.ServicesModule)
-      },{
+      },
+      {
+        path: 'billing',
+        loadChildren: () => import('./modules/billing/billing.module').then(module => module.BillingModule)
+      },
+      {
         path: '**',
         redirectTo: 'page-not-found',
         pathMatch: "full"
-      }, {
+      },
+      {
         path: 'page-not-found',
         component: PageNotFoundComponent
       }
