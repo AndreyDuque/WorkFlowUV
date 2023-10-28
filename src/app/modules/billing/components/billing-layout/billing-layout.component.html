@@ -1,1 +1,117 @@
-<p>billing-layout works!</p>
+<h3 class="titulo mb-5 text-center">Facturación</h3>
+<div class="container">
+  <form
+    class="row d-flex justify-content-around border rounded mx-1"
+  >
+    <div
+      class="mt-3 mb-3 col-12 col-md-4"
+    >
+      <label for="exampleDataList1" class="form-label"
+        ><strong>Filtrar negociaciones por:</strong></label
+      >
+      <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+        <option selected>Open this select menu</option>
+        <option>Etapa</option>
+        <option>Cliente</option>
+        <option>Obra</option>
+        <option>Placa</option>
+        <option>Producto</option>
+        <option>Servicio</option>
+        <option>Número de factura</option>
+        <option>Número de relación</option>
+      </select>
+      <!-- <input
+        autocomplete="off"
+        class="form-control"
+        list="datalistOptions1"
+        id="exampleDataList1"
+        name="filtro"
+        placeholder="Seleccione el filtro..."
+        formControlName="filtro"
+        (change)="seleccionarFiltro($event)"
+      />
+      <datalist id="datalistOptions1">
+        <option>Etapa</option>
+        <option>Cliente</option>
+        <option>Obra</option>
+        <option>Placa</option>
+        <option>Producto</option>
+        <option>Servicio</option>
+        <option>Número de factura</option>
+        <option>Número de relación</option>
+      </datalist> -->
+    </div>
+
+    <div
+      class="mt-3 col-12 col-md-4"
+    >
+      <label for="exampleDataList1" class="form-label"
+        ><strong>{{filtroSeleccionado}}</strong></label
+      >
+      <input
+        autocomplete="off"
+        class="form-control"
+        list="datalistOptions1"
+        id="exampleDataList1"
+        name="cliente"
+        placeholder="Seleccione una opción..."
+        formControlName="cliente"
+      />
+    </div>
+
+    <div class="mt-4 col-12 col-md-4">
+      <button type="button" class="mt-2 btn btn-outline-primary">Filtrar</button>
+      <button type="button" class="mt-2 mx-2 btn btn-outline-danger">Relacionar</button>
+      <button type="button" class="mt-2 btn btn-outline-success">Facturar</button>
+    </div>
+
+  </form>
+
+  <div class="mt-5">
+    <h3 class="titulo mb-5 text-center">Negociaciones</h3>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Fecha programación</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Obra</th>
+          <th scope="col">Tipo de servicio</th>
+          <th scope="col">Producto</th>
+          <th scope="col">Etapa</th>
+          <th scope="col">Placa</th>
+          <th scope="col"># Recibo</th>
+          <th scope="col">Horómetro inicial</th>
+          <th scope="col">Horómetro final</th>
+          <th scope="col">Precio</th>
+          <th scope="col">Cantidad</th>
+          <th scope="col">Ingreso</th>
+          <th scope="col"># De relación</th>
+          <th scope="col"># De factura</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+          <td>Dato de prueba</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
